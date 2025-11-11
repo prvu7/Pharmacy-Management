@@ -1,4 +1,4 @@
--- creating the database
+-- creating the database for app
 
 CREATE DATABASE pharmacy_management;
 
