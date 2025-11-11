@@ -1,3 +1,5 @@
+-- creating the database
+
 CREATE DATABASE pharmacy_management;
 
 \c pharmacy_management
