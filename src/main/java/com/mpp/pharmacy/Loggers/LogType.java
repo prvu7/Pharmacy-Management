@@ -1,0 +1,14 @@
+package com.mpp.pharmacy.Loggers;
+
+public enum LogType {
+    INVENTORY,
+    PERSON_ERROR,
+    PAYMENT_ERROR,
+    SAVE_ERROR,
+    AUTH_ERROR,
+    ORDER_ERROR,
+    VALIDATION_ERROR,
+    GENERAL_INFO,
+    NOTIFICATION,
+    INVALID_REQUEST
+}
