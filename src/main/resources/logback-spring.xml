@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="GENERAL_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="INVENTORY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/inventory.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/inventory.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="PERSON_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/person-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/person-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="PAYMENT_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/payment-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/payment-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SAVE_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/save-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/save-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="AUTH_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/auth-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/auth-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ORDER_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/order-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/order-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="VALIDATION_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/validation-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/validation-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="NOTIFICATION_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/notification.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/notification.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="INVALID_REQUEST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/invalid-request.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/invalid-request.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="INVENTORY" level="INFO" additivity="false">
+        <appender-ref ref="INVENTORY_FILE"/>
+    </logger>
+
+    <logger name="PERSON_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="PERSON_ERROR_FILE"/>
+    </logger>
+
+    <logger name="PAYMENT_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="PAYMENT_ERROR_FILE"/>
+    </logger>
+
+    <logger name="SAVE_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="SAVE_ERROR_FILE"/>
+    </logger>
+
+    <logger name="AUTH_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="AUTH_ERROR_FILE"/>
+    </logger>
+
+    <logger name="ORDER_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="ORDER_ERROR_FILE"/>
+    </logger>
+
+    <logger name="VALIDATION_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="VALIDATION_ERROR_FILE"/>
+    </logger>
+
+    <logger name="NOTIFICATION" level="INFO" additivity="false">
+        <appender-ref ref="NOTIFICATION_FILE"/>
+    </logger>
+
+    <logger name="INVALID_REQUEST" level="INFO" additivity="false">
+        <appender-ref ref="INVALID_REQUEST_FILE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="GENERAL_INFO"/>
+    </root>
+
+</configuration>

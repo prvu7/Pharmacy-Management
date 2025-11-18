@@ -2,8 +2,10 @@ package com.mpp.pharmacy;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-@SpringBootApplication
+// ONLY TESTING RIGHT NOW THIS REMOVES DATABASE CONNCECTION ERRORS
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class })
 public class PharmacyApplication {
 
 	public static void main(String[] args) {
