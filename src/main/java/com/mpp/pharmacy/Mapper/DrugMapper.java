@@ -2,13 +2,13 @@ package com.mpp.pharmacy.Mapper;
 
 import com.mpp.pharmacy.DTO.DrugDTO;
 import com.mpp.pharmacy.Entity.Drug;
+import com.mpp.pharmacy.RequestDTO.DrugRequestDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface DrugMapper {
-    DrugMapper INSTANCE = Mappers.getMapper(DrugMapper.class);
 
     DrugDTO toDTO(Drug entity);
-    Drug toEntity(DrugDTO dto);
+
+    Drug toEntity(DrugRequestDTO dto);
 }
