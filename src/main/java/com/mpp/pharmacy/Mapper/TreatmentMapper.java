@@ -2,17 +2,17 @@ package com.mpp.pharmacy.Mapper;
 
 import com.mpp.pharmacy.DTO.TreatmentDTO;
 import com.mpp.pharmacy.Entity.Treatment;
+import com.mpp.pharmacy.RequestDTO.TreatmentRequestDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface TreatmentMapper {
-    TreatmentMapper INSTANCE = Mappers.getMapper(TreatmentMapper.class);
 
-    @Mapping(source = "doctor.personId", target = "doctorId")
+    @Mapping(target = "doctorId", source = "doctor.personId")
     TreatmentDTO toDTO(Treatment entity);
 
-    @Mapping(source = "doctorId", target = "doctor.personId")
-    Treatment toEntity(TreatmentDTO dto);
+    @Mapping(target = "doctor", ignore = true)
+    Treatment toEntity(TreatmentRequestDTO dto);
 }
