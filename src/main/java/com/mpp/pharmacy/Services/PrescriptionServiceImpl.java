@@ -30,8 +30,6 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public PrescriptionDTO create(PrescriptionRequestDTO request) {
-        log.info("Creating prescription: {}", request);
-
         Person patient = personRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Patient not found: " + request.getPatientId()));
 

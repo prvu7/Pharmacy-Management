@@ -24,7 +24,6 @@ public class PharmacyServiceImpl implements PharmacyService {
     @Override
     public PharmacyDTO create(PharmacyRequestDTO request) {
         Pharmacy pharmacy = mapper.fromRequest(request);
-        log.info("Creating pharmacy: {}", pharmacy.getName());
         return mapper.toDTO(repository.save(pharmacy));
     }
 
