@@ -4,6 +4,8 @@ import com.mpp.pharmacy.DTO.DrugDTO;
 import com.mpp.pharmacy.RequestDTO.DrugRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.DrugService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,27 +18,37 @@ public class DrugController {
     private final DrugService drugService;
 
     @PostMapping
-    public DrugDTO createDrug(@RequestBody DrugRequestDTO request) {
-        return drugService.create(request);
+    public ResponseEntity<DrugDTO> create(@RequestBody DrugRequestDTO request) {
+        DrugDTO created = drugService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping
-    public List<DrugDTO> getAllDrugs() {
-        return drugService.getAll();
+    public ResponseEntity<List<DrugDTO>> getAllDrugs() {
+        List<DrugDTO> drugs = drugService.getAll();
+        return ResponseEntity.ok(drugs);
     }
 
+
     @GetMapping("/{id}")
-    public DrugDTO getDrugById(@PathVariable Long id) {
-        return drugService.getById(id);
+    public ResponseEntity<DrugDTO> getById(@PathVariable Long id) {
+        DrugDTO dto = drugService.getById(id);
+        return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}")
-    public DrugDTO updateDrug(@PathVariable Long id, @RequestBody DrugRequestDTO request) {
-        return drugService.update(id, request);
+    public ResponseEntity<DrugDTO> updateDrug(
+            @PathVariable Long id,
+            @RequestBody DrugRequestDTO request
+    ) {
+        return ResponseEntity.ok(drugService.update(id, request));
     }
 
+
     @DeleteMapping("/{id}")
-    public void deleteDrug(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteDrug(@PathVariable Long id) {
         drugService.delete(id);
+        return ResponseEntity.noContent().build(); // 204 No Content
     }
+
 }
