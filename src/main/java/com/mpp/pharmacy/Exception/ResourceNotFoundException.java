@@ -1,7 +1,9 @@
 package com.mpp.pharmacy.Exception;
 
-public class ResourceNotFoundException extends RuntimeException {
+import com.mpp.pharmacy.Loggers.LogType;
+
+public class ResourceNotFoundException extends AppException {
     public ResourceNotFoundException(String message) {
-        super(message);
+        super(message, LogType.INVALID_REQUEST);
     }
 }
