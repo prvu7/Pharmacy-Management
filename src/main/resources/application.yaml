@@ -1,4 +1,6 @@
 spring:
+  config:
+      import: optional:file:.env[.properties]
   application:
     name: pharmacy
   datasource:
@@ -20,4 +22,6 @@ app:
     api-key-name: ${api-key-name}
     api-key-value: ${api-key-value}
 
+server:
+  port: 8080
 

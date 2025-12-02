@@ -28,7 +28,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonDTO create(PersonRequestDTO request) {
-        log.info("Creating person: {}", request);
         Person person = mapper.toEntity(request);
         Person saved = repository.save(person);
         return mapper.toDTO(saved);

@@ -117,6 +117,28 @@
         </encoder>
     </appender>
 
+    <appender name="UNEXPECTED_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/unexpected-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/unexpected-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DATABASE_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/database-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/database-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="INVENTORY" level="INFO" additivity="false">
         <appender-ref ref="INVENTORY_FILE"/>
     </logger>
@@ -151,6 +173,14 @@
 
     <logger name="INVALID_REQUEST" level="INFO" additivity="false">
         <appender-ref ref="INVALID_REQUEST_FILE"/>
+    </logger>
+
+    <logger name="UNEXPECTED_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="UNEXPECTED_ERROR_FILE"/>
+    </logger>
+
+    <logger name="DATABASE_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="DATABASE_ERROR_FILE"/>
     </logger>
 
     <root level="INFO">
