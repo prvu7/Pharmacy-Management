@@ -21,7 +21,7 @@ public class DrugServiceImpl implements DrugService {
 
     private final DrugRepository repository;
     private final DrugMapper mapper;
-
+  
     // =====================================================================
     // CRUD operations
     // =====================================================================
@@ -29,7 +29,6 @@ public class DrugServiceImpl implements DrugService {
 
     @Override
     public DrugDTO create(DrugRequestDTO request) {
-        log.info("Creating drug: {}", request);
         Drug drug = mapper.toEntity(request);
         Drug saved = repository.save(drug);
         return mapper.toDTO(saved);
@@ -63,6 +62,7 @@ public class DrugServiceImpl implements DrugService {
         existing.setPrice(request.getPrice());
 
         Drug updated = repository.save(existing);
+
         return mapper.toDTO(updated);
     }
 
