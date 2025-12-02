@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mpp.pharmacy.DTO.PrescriptionDTO;
+import com.mpp.pharmacy.DTO.PrescriptionDetailDTO;
+import com.mpp.pharmacy.RequestDTO.PrescriptionDetailRequestDTO;
 import com.mpp.pharmacy.RequestDTO.PrescriptionRequestDTO;
 import com.mpp.pharmacy.Services.PrescriptionDetailServiceImpl;
 import com.mpp.pharmacy.Services.PrescriptionServiceImpl;
@@ -92,5 +94,84 @@ class PrescriptionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void createPrescriptionDetail_ShouldReturnCreated() throws Exception {
+        PrescriptionDetailRequestDTO request = new PrescriptionDetailRequestDTO();
+        PrescriptionDetailDTO response = new PrescriptionDetailDTO();
+
+        when(prescriptionDetailService.create(any(PrescriptionDetailRequestDTO.class))).thenReturn(response);
+
+        mockMvc.perform(post("/api/prescription-details")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAllPrescriptionDetail_ShouldReturnList() throws Exception {
+        PrescriptionDetailDTO prescriptionDetail = new PrescriptionDetailDTO();
+
+        when(prescriptionDetailService.getAll()).thenReturn(List.of(prescriptionDetail));
+
+        mockMvc.perform(get("/api/prescription-details"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.size()").value(1));
+    }
+
+    @Test
+    void getPrescriptionDetailByIds_ShouldReturnPrescriptionDetailDTO() throws Exception {
+        Long prescriptionId = 1L;
+        Long drugId = 1L;
+        PrescriptionDetailDTO response = new PrescriptionDetailDTO();
+
+        when(prescriptionDetailService.get(eq(prescriptionId), eq(drugId))).thenReturn(response);
+
+        mockMvc.perform(get("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getDetailsByPrescription_ShouldReturnList() throws Exception {
+        Long prescriptionId = 1L;
+
+        PrescriptionDetailDTO prescriptionDetail = new PrescriptionDetailDTO();
+
+        when(prescriptionDetailService.getAll()).thenReturn(List.of(prescriptionDetail));
+
+        mockMvc.perform(get("/api/prescriptions/{prescriptionId}/details", prescriptionId))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.size()").value(1));
+    }
+
+    @Test
+    void updatePrescriptionDetail_ShouldReturnUpdated() throws Exception {
+        Long prescriptionId = 1L;
+        Long drugId = 1L;
+        PrescriptionDetailRequestDTO request = new PrescriptionDetailRequestDTO();
+        PrescriptionDetailDTO response = new PrescriptionDetailDTO();
+
+        when(prescriptionDetailService.update(
+                eq(prescriptionId),
+                eq(drugId),
+                any(PrescriptionDetailRequestDTO.class)
+        )).thenReturn(response);
+
+        mockMvc.perform(put("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deletePrescriptionDetail_ShouldReturnNoContent() throws Exception {
+        Long prescriptionId = 1L;
+        Long drugId = 1L;
+
+        mockMvc.perform(delete("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
+                .andExpect(status().isNoContent());
     }
 }
