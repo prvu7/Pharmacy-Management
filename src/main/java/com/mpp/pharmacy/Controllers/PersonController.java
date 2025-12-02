@@ -4,6 +4,7 @@ import com.mpp.pharmacy.DTO.PersonDTO;
 import com.mpp.pharmacy.RequestDTO.PersonRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.PersonService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,27 +21,34 @@ public class PersonController {
     }
 
     @PostMapping
-    public PersonDTO create(@RequestBody PersonRequestDTO request) {
-        return service.create(request);
+    public ResponseEntity<PersonDTO> create(@RequestBody PersonRequestDTO request) {
+        PersonDTO person = service.create(request);
+        return ResponseEntity.ok().body(person);
     }
 
     @GetMapping("/{id}")
-    public PersonDTO getById(@PathVariable Long id) {
-        return service.getById(id);
+    public ResponseEntity<PersonDTO> getById(@PathVariable Long id) {
+        PersonDTO person = service.getById(id);
+        return ResponseEntity.ok().body(person);
     }
 
     @GetMapping
-    public List<PersonDTO> getAll() {
-        return service.getAll();
+    public ResponseEntity<List<PersonDTO>> getAll() {
+
+        List<PersonDTO> persons = service.getAll();
+        return ResponseEntity.ok().body(persons);
     }
 
     @PutMapping("/{id}")
-    public PersonDTO update(@PathVariable Long id, @RequestBody PersonRequestDTO request) {
-        return service.update(id, request);
+    public ResponseEntity<PersonDTO> update(@PathVariable Long id, @RequestBody PersonRequestDTO request) {
+
+        return ResponseEntity.ok().body(service.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+
         service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

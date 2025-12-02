@@ -22,4 +22,6 @@ app:
     api-key-name: ${api-key-name}
     api-key-value: ${api-key-value}
 
+server:
+  port: 8080
 
