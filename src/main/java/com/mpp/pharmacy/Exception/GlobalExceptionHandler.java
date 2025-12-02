@@ -3,7 +3,6 @@ package com.mpp.pharmacy.Exception;
 import com.mpp.pharmacy.Loggers.CustomLogger;
 import com.mpp.pharmacy.Loggers.LogType;
 
-import org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties.Web;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -23,7 +22,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<?> handleDataAccessException(DataAccessException e, WebRequest request) {
         logger.error(LogType.DATABASE_ERROR, "Database error occurred", e);
-        return ResponseEntity.status(404).body(e.getMessage());
+        return ResponseEntity.status(500).body(e.getMessage());
     }
 
     @ExceptionHandler(AuthException.class)
@@ -47,19 +46,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InventoryException.class)
     public ResponseEntity<?> handleInventoryException(InventoryException e, WebRequest request) {
         logger.warn(LogType.INVENTORY, "Inventory error: " + e.getMessage());
-        return ResponseEntity.status(404).body(e.getMessage());
+        return ResponseEntity.status(409).body(e.getMessage());
     }
 
     @ExceptionHandler(NotificationException.class)
     public ResponseEntity<?> handleNotificationException(NotificationException e, WebRequest request) {
         logger.warn(LogType.NOTIFICATION, "Notification: " + e.getMessage());
-        return ResponseEntity.status(404).body(e.getMessage());
+        return ResponseEntity.status(500).body(e.getMessage());
     }
 
     @ExceptionHandler(OrderException.class)
     public ResponseEntity<?> handleOrderException(OrderException e, WebRequest request) {
         logger.warn(LogType.ORDER_ERROR, "Order error: " + e.getMessage());
-        return ResponseEntity.status(404).body(e.getMessage());
+        return ResponseEntity.status(422).body(e.getMessage());
     }
 
     @ExceptionHandler(PaymentException.class)
@@ -71,7 +70,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PersonException.class)
     public ResponseEntity<?> handlePersonException(PersonException e, WebRequest request) {
         logger.error(LogType.PERSON_ERROR, "Person error: " + e.getMessage(), e);
-        return ResponseEntity.status(404).body(e.getMessage());
+        return ResponseEntity.status(400).body(e.getMessage());
     }
 
     @ExceptionHandler(SaveException.class)
@@ -89,7 +88,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleUnexpectedException(Exception e, WebRequest request) {
         logger.error(LogType.UNEXPECTED_ERROR, "An unexpected error occurred", e);
-        return ResponseEntity.status(404).body(e.getMessage());
+        return ResponseEntity.status(500).body(e.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -100,7 +99,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<?> handleNullPointerException(NullPointerException e, WebRequest request) {
-        logger.error(LogType.GENERAL_INFO, "Null pointer exception occurred", e);
+        logger.error(LogType.UNEXPECTED_ERROR, "Null pointer exception occurred", e);
         return ResponseEntity.status(500).body("A null pointer exception occurred: " + e.getMessage());
     }
 }

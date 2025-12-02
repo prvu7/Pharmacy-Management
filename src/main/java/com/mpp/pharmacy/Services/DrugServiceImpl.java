@@ -26,7 +26,6 @@ public class DrugServiceImpl implements DrugService {
     // CRUD operations
     // =====================================================================
 
-
     @Override
     public DrugDTO create(DrugRequestDTO request) {
         Drug drug = mapper.toEntity(request);

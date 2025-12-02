@@ -10,12 +10,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.mpp.pharmacy.Exception.AuthException;
-import com.mpp.pharmacy.Loggers.CustomLogger;
-import com.mpp.pharmacy.Loggers.LogType;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
@@ -40,7 +37,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response);
         } else {
-            resolver.resolveException(request, response, null, new AuthException("Invalid key used " + requestApiKey));
+            resolver.resolveException(request, response, null, new AuthException("Invalid API Key"));
         }
     }
 }
