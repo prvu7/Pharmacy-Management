@@ -88,7 +88,7 @@ public class PrescriptionController {
     public ResponseEntity<List<PrescriptionDetailDTO>> getDetailsByPrescription(
             @PathVariable Long prescriptionId
     ) {
-        List<PrescriptionDetailDTO> prescriptionDetailDTOList = prescriptionDetailService.getAll();
+        List<PrescriptionDetailDTO> prescriptionDetailDTOList = prescriptionDetailService.getByPrescription(prescriptionId);
         return ResponseEntity.ok(prescriptionDetailDTOList);
     }
 
