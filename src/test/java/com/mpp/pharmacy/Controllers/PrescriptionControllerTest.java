@@ -137,9 +137,7 @@ class PrescriptionControllerTest {
     void getDetailsByPrescription_ShouldReturnList() throws Exception {
         Long prescriptionId = 1L;
 
-        PrescriptionDetailDTO prescriptionDetail = new PrescriptionDetailDTO();
-
-        when(prescriptionDetailService.getAll()).thenReturn(List.of(prescriptionDetail));
+        when(prescriptionDetailService.getByPrescription(prescriptionId)).thenReturn(List.of(PrescriptionDetailDTO.builder().build()));
 
         mockMvc.perform(get("/api/prescriptions/{prescriptionId}/details", prescriptionId))
                 .andExpect(status().isOk())
