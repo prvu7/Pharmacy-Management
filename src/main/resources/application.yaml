@@ -1,6 +1,17 @@
 spring:
+  config:
+      import: optional:file:.env[.properties]
   application:
     name: pharmacy
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 logging:
   config: classpath:logback-spring.xml
   level:
@@ -8,5 +19,9 @@ logging:
     com.example.pharmacy: DEBUG
 app:
   security:
-    api-key-name: x-api-key
-    api-key-value: your-secret-api-key
+    api-key-name: ${api-key-name}
+    api-key-value: ${api-key-value}
+
+server:
+  port: 8080
+

@@ -1,6 +1,7 @@
 package com.mpp.pharmacy.Security;
 
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.List;
 
@@ -29,18 +31,36 @@ public class SecurityConfig {
     @Value("${app.security.api-key-value}")
     private String apiKeyValue;
 
+    private final HandlerExceptionResolver resolver;
+
+    public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.resolver = resolver;
+    } 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests.anyRequest().authenticated()
+                .authorizeHttpRequests(auth -> auth
+                        // Allow Swagger UI
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml"
+                        ).permitAll()
+
+                        // allow OPTIONS (important for CORS + Swagger)
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Protect all other endpoints
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(new ApiKeyAuthFilter(apiKeyName, apiKeyValue), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new ApiKeyAuthFilter(apiKeyName, apiKeyValue, resolver), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
