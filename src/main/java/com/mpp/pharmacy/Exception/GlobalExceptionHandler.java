@@ -24,6 +24,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(404).body(e.getMessage());
     }
 
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<Map<String, Object>> handleAuthException(AuthException ex) {
+        log.error("Authentication Error: {}", ex.getMessage());
+
+        return ResponseEntity.status(401).body(Map.of(
+                "timestamp", LocalDateTime.now().toString(),
+                "errorType", "AUTHENTICATION_ERROR",
+                "message", ex.getMessage()
+        ));
+    }
+
+    // fallback handler for unexpected errors
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleUnexpectedException(Exception e, WebRequest request) {
         logger.error(LogType.UNEXPECTED_ERROR, "An unexpected error occurred", e);
