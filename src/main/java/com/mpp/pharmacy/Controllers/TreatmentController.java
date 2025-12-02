@@ -3,6 +3,7 @@ package com.mpp.pharmacy.Controllers;
 import com.mpp.pharmacy.DTO.TreatmentDTO;
 import com.mpp.pharmacy.RequestDTO.TreatmentRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.TreatmentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,27 +18,31 @@ public class TreatmentController {
     }
 
     @PostMapping
-    public TreatmentDTO create(@RequestBody TreatmentRequestDTO request) {
-        return treatmentService.create(request);
+    public ResponseEntity<TreatmentDTO> create(@RequestBody TreatmentRequestDTO request) {
+        TreatmentDTO treatment = treatmentService.create(request);
+        return ResponseEntity.ok().body(treatment);
     }
 
     @GetMapping
-    public TreatmentDTO getByTreatmentId(@PathVariable Long id) {
-        return treatmentService.getById(id);
+    public ResponseEntity<TreatmentDTO> getByTreatmentId(@PathVariable Long id) {
+        TreatmentDTO treatment = treatmentService.getById(id);
+        return ResponseEntity.ok().body(treatment);
     }
 
     @GetMapping
-    public List<TreatmentDTO> getTreatments() {
-        return treatmentService.getAll();
+    public ResponseEntity<List<TreatmentDTO>> getTreatments() {
+        List<TreatmentDTO> treatments = treatmentService.getAll();
+        return ResponseEntity.ok().body(treatments);
     }
 
     @PutMapping("/{id}")
-    public TreatmentDTO update(@PathVariable Long id, @RequestBody TreatmentRequestDTO request) {
-        return treatmentService.update(id, request);
+    public ResponseEntity<TreatmentDTO> update(@PathVariable Long id, @RequestBody TreatmentRequestDTO request) {
+        return ResponseEntity.ok(treatmentService.update(id, request));
     }
 
     @DeleteMapping
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         treatmentService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
