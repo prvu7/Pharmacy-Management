@@ -4,15 +4,12 @@ package com.mpp.pharmacy.Services;
 import com.mpp.pharmacy.DTO.DrugDTO;
 import com.mpp.pharmacy.Entity.Drug;
 import com.mpp.pharmacy.Exception.ResourceNotFoundException;
-import com.mpp.pharmacy.Loggers.CustomLogger;
-import com.mpp.pharmacy.Loggers.LogType;
 import com.mpp.pharmacy.Mapper.DrugMapper;
 import com.mpp.pharmacy.Repository.DrugRepository;
 import com.mpp.pharmacy.RequestDTO.DrugRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.DrugService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,8 +21,7 @@ public class DrugServiceImpl implements DrugService {
 
     private final DrugRepository repository;
     private final DrugMapper mapper;
-    private final CustomLogger logger = CustomLogger.getInstance();
-
+  
     // =====================================================================
     // CRUD operations
     // =====================================================================

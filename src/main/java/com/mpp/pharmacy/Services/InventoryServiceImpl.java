@@ -5,8 +5,6 @@ import com.mpp.pharmacy.Entity.Drug;
 import com.mpp.pharmacy.Entity.Inventory;
 import com.mpp.pharmacy.Entity.Pharmacy;
 import com.mpp.pharmacy.Exception.ResourceNotFoundException;
-import com.mpp.pharmacy.Loggers.CustomLogger;
-import com.mpp.pharmacy.Loggers.LogType;
 import com.mpp.pharmacy.Mapper.InventoryMapper;
 import com.mpp.pharmacy.Repository.DrugRepository;
 import com.mpp.pharmacy.Repository.InventoryRepository;
@@ -15,7 +13,6 @@ import com.mpp.pharmacy.RequestDTO.InventoryRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +26,6 @@ public class InventoryServiceImpl implements InventoryService {
     private final PharmacyRepository pharmacyRepository;
     private final DrugRepository drugRepository;
     private final InventoryMapper mapper;
-    private final CustomLogger logger = CustomLogger.getInstance();
 
     @Override
     public InventoryDTO create(InventoryRequestDTO request) {
