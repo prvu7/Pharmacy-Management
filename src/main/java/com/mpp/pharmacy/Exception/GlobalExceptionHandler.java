@@ -41,6 +41,4 @@ public class GlobalExceptionHandler {
         logger.error(LogType.GENERAL_INFO, "Null pointer exception occurred", e);
         return ResponseEntity.status(500).body("A null pointer exception occurred: " + e.getMessage());
     }
-
-    //TODO: After adding more specific exceptions, add their handlers here.
 }
