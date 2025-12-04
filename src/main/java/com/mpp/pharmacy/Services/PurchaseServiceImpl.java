@@ -1,69 +1,58 @@
 package com.mpp.pharmacy.Services;
 
 import com.mpp.pharmacy.DTO.PurchaseDTO;
-import com.mpp.pharmacy.Entity.Person;
-import com.mpp.pharmacy.Entity.Pharmacy;
-import com.mpp.pharmacy.Entity.Prescription;
+import com.mpp.pharmacy.Domain.PurchaseDomain;
 import com.mpp.pharmacy.Entity.Purchase;
-import com.mpp.pharmacy.Exception.ResourceNotFoundException;
+import com.mpp.pharmacy.Exception.InvalidRequestException;
 import com.mpp.pharmacy.Mapper.PurchaseMapper;
-import com.mpp.pharmacy.Repository.PersonRepository;
-import com.mpp.pharmacy.Repository.PharmacyRepository;
-import com.mpp.pharmacy.Repository.PrescriptionRepository;
 import com.mpp.pharmacy.Repository.PurchaseRepository;
 import com.mpp.pharmacy.RequestDTO.PurchaseRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.PurchaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class PurchaseServiceImpl implements PurchaseService {
 
     private final PurchaseRepository purchaseRepository;
-    private final PharmacyRepository pharmacyRepository;
-    private final PersonRepository personRepository;
-    private final PrescriptionRepository prescriptionRepository;
     private final PurchaseMapper mapper;
+    private final PurchaseDomain purchaseDomain;
 
     @Override
     public PurchaseDTO create(PurchaseRequestDTO request) {
-        log.info("Creating new purchase");
+        log.info("Service: Creating purchase");
 
-        Pharmacy pharmacy = pharmacyRepository.findById(request.getPharmacyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found"));
-
-        Person patient = personRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
-
-        Prescription prescription = null;
-        if (request.getPrescriptionId() != null) {
-            prescription = prescriptionRepository.findById(request.getPrescriptionId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Prescription not found"));
+        if (request == null) {
+            throw new InvalidRequestException("Purchase request cannot be null");
         }
 
-        Purchase purchase = mapper.fromRequest(request);
-        purchase.setPharmacy(pharmacy);
-        purchase.setPatient(patient);
-        purchase.setPrescription(prescription);
-
-        return mapper.toDTO(purchaseRepository.save(purchase));
+        Purchase created = purchaseDomain.create(request);
+        return mapper.toDTO(created);
     }
 
     @Override
     public PurchaseDTO getById(Long id) {
-        Purchase entity = purchaseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase not found"));
-        return mapper.toDTO(entity);
+        log.debug("Service: Fetching purchase with id: {}", id);
+
+        if (id == null) {
+            throw new InvalidRequestException("Purchase ID cannot be null");
+        }
+
+        Purchase purchase = purchaseDomain.getById(id);
+        return mapper.toDTO(purchase);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PurchaseDTO> getAll() {
+        log.debug("Service: Fetching all purchases");
         return purchaseRepository.findAll()
                 .stream()
                 .map(mapper::toDTO)
@@ -71,7 +60,14 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PurchaseDTO> getByPatient(Long patientId) {
+        log.debug("Service: Fetching purchases for patient: {}", patientId);
+
+        if (patientId == null) {
+            throw new InvalidRequestException("Patient ID cannot be null");
+        }
+
         return purchaseRepository.findByPatient_PersonId(patientId)
                 .stream()
                 .map(mapper::toDTO)
@@ -79,7 +75,14 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PurchaseDTO> getByPharmacy(Long pharmacyId) {
+        log.debug("Service: Fetching purchases for pharmacy: {}", pharmacyId);
+
+        if (pharmacyId == null) {
+            throw new InvalidRequestException("Pharmacy ID cannot be null");
+        }
+
         return purchaseRepository.findByPharmacy_PharmacyId(pharmacyId)
                 .stream()
                 .map(mapper::toDTO)
@@ -88,35 +91,27 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public PurchaseDTO update(Long id, PurchaseRequestDTO request) {
-        Purchase purchase = purchaseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase not found"));
+        log.info("Service: Updating purchase with id: {}", id);
 
-        Pharmacy pharmacy = pharmacyRepository.findById(request.getPharmacyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found"));
-
-        Person patient = personRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
-
-        Prescription prescription = null;
-        if (request.getPrescriptionId() != null) {
-            prescription = prescriptionRepository.findById(request.getPrescriptionId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Prescription not found"));
+        if (id == null) {
+            throw new InvalidRequestException("Purchase ID cannot be null");
+        }
+        if (request == null) {
+            throw new InvalidRequestException("Purchase request cannot be null");
         }
 
-        purchase.setPharmacy(pharmacy);
-        purchase.setPatient(patient);
-        purchase.setPrescription(prescription);
-        purchase.setPurchaseDate(request.getPurchaseDate());
-        purchase.setTotalAmount(request.getTotalAmount());
-
-        return mapper.toDTO(purchaseRepository.save(purchase));
+        Purchase updated = purchaseDomain.update(id, request);
+        return mapper.toDTO(updated);
     }
 
     @Override
     public void delete(Long id) {
-        if (!purchaseRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Purchase not found");
+        log.info("Service: Deleting purchase with id: {}", id);
+
+        if (id == null) {
+            throw new InvalidRequestException("Purchase ID cannot be null");
         }
-        purchaseRepository.deleteById(id);
+
+        purchaseDomain.delete(id);
     }
 }

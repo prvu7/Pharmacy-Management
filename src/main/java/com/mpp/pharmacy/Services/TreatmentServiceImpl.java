@@ -1,86 +1,86 @@
 package com.mpp.pharmacy.Services;
 
 import com.mpp.pharmacy.DTO.TreatmentDTO;
-import com.mpp.pharmacy.Entity.Person;
+import com.mpp.pharmacy.Domain.TreatmentDomain;
 import com.mpp.pharmacy.Entity.Treatment;
-import com.mpp.pharmacy.Exception.ResourceNotFoundException;
+import com.mpp.pharmacy.Exception.InvalidRequestException;
 import com.mpp.pharmacy.Mapper.TreatmentMapper;
-import com.mpp.pharmacy.Repository.PersonRepository;
 import com.mpp.pharmacy.Repository.TreatmentRepository;
 import com.mpp.pharmacy.RequestDTO.TreatmentRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.TreatmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class TreatmentServiceImpl implements TreatmentService {
 
     private final TreatmentRepository repository;
     private final TreatmentMapper mapper;
-    private final PersonRepository personRepository;
+    private final TreatmentDomain treatmentDomain;
 
     @Override
     public TreatmentDTO create(TreatmentRequestDTO request) {
-        log.info("Creating treatment: {}", request);
+        log.info("Service: Creating treatment");
 
-        Person doctor = null;
-        if (request.getDoctorId() != null) {
-            doctor = personRepository.findById(request.getDoctorId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Doctor not found: " + request.getDoctorId()));
+        if (request == null) {
+            throw new InvalidRequestException("Treatment request cannot be null");
         }
 
-        Treatment treatment = mapper.toEntity(request);
-        treatment.setDoctor(doctor);
-
-        Treatment saved = repository.save(treatment);
-        return mapper.toDTO(saved);
+        Treatment created = treatmentDomain.create(request);
+        return mapper.toDTO(created);
     }
 
     @Override
     public TreatmentDTO getById(Long id) {
-        Treatment entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Treatment not found: " + id));
-        return mapper.toDTO(entity);
+        log.debug("Service: Fetching treatment with id: {}", id);
+
+        if (id == null) {
+            throw new InvalidRequestException("Treatment ID cannot be null");
+        }
+
+        Treatment treatment = treatmentDomain.getById(id);
+        return mapper.toDTO(treatment);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TreatmentDTO> getAll() {
+        log.debug("Service: Fetching all treatments");
         return repository.findAll().stream()
                 .map(mapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public TreatmentDTO update(Long id, TreatmentRequestDTO request) {
-        Treatment existing = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Treatment not found: " + id));
+        log.info("Service: Updating treatment with id: {}", id);
 
-        Person doctor = null;
-        if (request.getDoctorId() != null) {
-            doctor = personRepository.findById(request.getDoctorId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Doctor not found: " + request.getDoctorId()));
+        if (id == null) {
+            throw new InvalidRequestException("Treatment ID cannot be null");
+        }
+        if (request == null) {
+            throw new InvalidRequestException("Treatment request cannot be null");
         }
 
-        existing.setTreatmentName(request.getTreatmentName());
-        existing.setDescription(request.getDescription());
-        existing.setDoctor(doctor);
-        existing.setStartDate(request.getStartDate());
-        existing.setEndDate(request.getEndDate());
-
-        return mapper.toDTO(repository.save(existing));
+        Treatment updated = treatmentDomain.update(id, request);
+        return mapper.toDTO(updated);
     }
 
     @Override
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Treatment not found: " + id);
+        log.info("Service: Deleting treatment with id: {}", id);
+
+        if (id == null) {
+            throw new InvalidRequestException("Treatment ID cannot be null");
         }
-        repository.deleteById(id);
+
+        treatmentDomain.delete(id);
     }
 }
