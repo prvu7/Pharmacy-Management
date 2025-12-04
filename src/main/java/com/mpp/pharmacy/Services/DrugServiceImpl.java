@@ -39,13 +39,8 @@ public class DrugServiceImpl implements DrugService {
 
         if(request!= null)
         {
-            // 1. Convert DTO → Entity
             Drug drug = mapper.toEntity(request);
-
-            // 2. Validate the entity for creation
             validator.validateForCreation(drug);
-
-            // 3. Apply domain business logic (duplicate check)
             Drug created = drugDomain.create(request);
 
             return mapper.toDTO(created);
@@ -58,10 +53,9 @@ public class DrugServiceImpl implements DrugService {
         if (id != null && request != null) {
             Drug drug = mapper.toEntity(request);
             drug.setDrugId(id);
-
             validator.validateForUpdate(drug);
-
             Drug updated = drugDomain.update(id, request);
+
             return mapper.toDTO(updated);
         }
         return null;
