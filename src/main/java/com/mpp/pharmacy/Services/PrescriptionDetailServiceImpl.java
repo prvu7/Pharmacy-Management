@@ -1,61 +1,61 @@
 package com.mpp.pharmacy.Services;
 
 import com.mpp.pharmacy.DTO.PrescriptionDetailDTO;
-import com.mpp.pharmacy.Entity.Drug;
-import com.mpp.pharmacy.Entity.Prescription;
-import com.mpp.pharmacy.Entity.PrescriptionDetailId;
+import com.mpp.pharmacy.Domain.PrescriptionDetailDomain;
 import com.mpp.pharmacy.Entity.Prescription_Detail;
-import com.mpp.pharmacy.Exception.ResourceNotFoundException;
+import com.mpp.pharmacy.Exception.InvalidRequestException;
 import com.mpp.pharmacy.Mapper.PrescriptionDetailMapper;
-import com.mpp.pharmacy.Repository.DrugRepository;
 import com.mpp.pharmacy.Repository.PrescriptionDetailRepository;
-import com.mpp.pharmacy.Repository.PrescriptionRepository;
 import com.mpp.pharmacy.RequestDTO.PrescriptionDetailRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.PrescriptionDetailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class PrescriptionDetailServiceImpl implements PrescriptionDetailService {
 
     private final PrescriptionDetailRepository repository;
-    private final PrescriptionRepository prescriptionRepository;
-    private final DrugRepository drugRepository;
     private final PrescriptionDetailMapper mapper;
+    private final PrescriptionDetailDomain prescriptionDetailDomain;
 
     @Override
     public PrescriptionDetailDTO create(PrescriptionDetailRequestDTO request) {
-        Prescription prescription = prescriptionRepository.findById(request.getPrescriptionId())
-                .orElseThrow(() -> new ResourceNotFoundException("Prescription not found"));
+        log.info("Service: Creating prescription detail");
 
-        Drug drug = drugRepository.findById(request.getDrugId())
-                .orElseThrow(() -> new ResourceNotFoundException("Drug not found"));
+        if (request == null) {
+            throw new InvalidRequestException("Prescription detail request cannot be null");
+        }
 
-        Prescription_Detail entity = mapper.fromRequest(request);
-        entity.setPrescription(prescription);
-        entity.setDrug(drug);
-
-        return mapper.toDTO(repository.save(entity));
+        Prescription_Detail created = prescriptionDetailDomain.create(request);
+        return mapper.toDTO(created);
     }
 
     @Override
     public PrescriptionDetailDTO get(Long prescriptionId, Long drugId) {
-        PrescriptionDetailId id = new PrescriptionDetailId(prescriptionId, drugId);
+        log.debug("Service: Fetching prescription detail with prescriptionId: {} and drugId: {}", prescriptionId, drugId);
 
-        Prescription_Detail entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Prescription detail not found"));
+        if (prescriptionId == null) {
+            throw new InvalidRequestException("Prescription ID cannot be null");
+        }
+        if (drugId == null) {
+            throw new InvalidRequestException("Drug ID cannot be null");
+        }
 
-        return mapper.toDTO(entity);
+        Prescription_Detail detail = prescriptionDetailDomain.get(prescriptionId, drugId);
+        return mapper.toDTO(detail);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PrescriptionDetailDTO> getAll() {
+        log.debug("Service: Fetching all prescription details");
         return repository.findAll()
                 .stream()
                 .map(mapper::toDTO)
@@ -63,7 +63,14 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PrescriptionDetailDTO> getByPrescription(Long prescriptionId) {
+        log.debug("Service: Fetching prescription details for prescription: {}", prescriptionId);
+
+        if (prescriptionId == null) {
+            throw new InvalidRequestException("Prescription ID cannot be null");
+        }
+
         return repository.findByPrescription_PrescriptionId(prescriptionId)
                 .stream()
                 .map(mapper::toDTO)
@@ -72,25 +79,33 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
     @Override
     public PrescriptionDetailDTO update(Long prescriptionId, Long drugId, PrescriptionDetailRequestDTO request) {
-        PrescriptionDetailId id = new PrescriptionDetailId(prescriptionId, drugId);
+        log.info("Service: Updating prescription detail with prescriptionId: {} and drugId: {}", prescriptionId, drugId);
 
-        Prescription_Detail entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Prescription detail not found"));
+        if (prescriptionId == null) {
+            throw new InvalidRequestException("Prescription ID cannot be null");
+        }
+        if (drugId == null) {
+            throw new InvalidRequestException("Drug ID cannot be null");
+        }
+        if (request == null) {
+            throw new InvalidRequestException("Prescription detail request cannot be null");
+        }
 
-        entity.setDosage(request.getDosage());
-        entity.setDurationDays(request.getDurationDays());
-        entity.setQuantity(request.getQuantity());
-
-        return mapper.toDTO(repository.save(entity));
+        Prescription_Detail updated = prescriptionDetailDomain.update(prescriptionId, drugId, request);
+        return mapper.toDTO(updated);
     }
 
     @Override
     public void delete(Long prescriptionId, Long drugId) {
-        PrescriptionDetailId id = new PrescriptionDetailId(prescriptionId, drugId);
+        log.info("Service: Deleting prescription detail with prescriptionId: {} and drugId: {}", prescriptionId, drugId);
 
-        if (!repository.existsById(id))
-            throw new ResourceNotFoundException("Prescription detail not found");
+        if (prescriptionId == null) {
+            throw new InvalidRequestException("Prescription ID cannot be null");
+        }
+        if (drugId == null) {
+            throw new InvalidRequestException("Drug ID cannot be null");
+        }
 
-        repository.deleteById(id);
+        prescriptionDetailDomain.delete(prescriptionId, drugId);
     }
 }
