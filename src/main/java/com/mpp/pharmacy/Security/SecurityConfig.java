@@ -1,6 +1,7 @@
 package com.mpp.pharmacy.Security;
 
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.List;
 
@@ -28,6 +30,12 @@ public class SecurityConfig {
 
     @Value("${app.security.api-key-value}")
     private String apiKeyValue;
+
+    private final HandlerExceptionResolver resolver;
+
+    public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.resolver = resolver;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -52,7 +60,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .addFilterBefore(new ApiKeyAuthFilter(apiKeyName, apiKeyValue), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new ApiKeyAuthFilter(apiKeyName, apiKeyValue, resolver), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
