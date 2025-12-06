@@ -29,6 +29,8 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public InventoryDTO create(InventoryRequestDTO request) {
+        log.info("Creating new inventory record");
+
         Pharmacy pharmacy = pharmacyRepository.findById(request.getPharmacyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found"));
 
