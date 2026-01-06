@@ -28,14 +28,14 @@ public class PurchaseController {
         this.purchaseService = purchaseService;
     }
 
-    @PostMapping("/create")
+    @PostMapping()
     public ResponseEntity<PurchaseDTO> createPurchase(@RequestBody PurchaseRequestDTO request) {
 
         PurchaseDTO purchaseDTO = purchaseService.create(request);
-        return ResponseEntity.ok(purchaseDTO);
+        return ResponseEntity.created(null).body(purchaseDTO);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<PurchaseDTO> getPurchaseById(@PathVariable Long id) {
         PurchaseDTO purchaseDTO = purchaseService.getById(id);
         return ResponseEntity.ok(purchaseDTO);
@@ -52,7 +52,7 @@ public class PurchaseController {
         return ResponseEntity.ok(updatedPurchase);
     }
     
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePurchase(@PathVariable Long id) {
         purchaseService.delete(id);
         return ResponseEntity.noContent().build();
