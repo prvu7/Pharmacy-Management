@@ -1,9 +1,7 @@
 package com.mpp.pharmacy.Controllers;
 
 import com.mpp.pharmacy.DTO.InventoryDTO;
-import com.mpp.pharmacy.DTO.PharmacyDTO;
 import com.mpp.pharmacy.RequestDTO.InventoryRequestDTO;
-import com.mpp.pharmacy.RequestDTO.PharmacyRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.InventoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +23,7 @@ public class InventoryController {
         return ResponseEntity.ok().body(inventory);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<InventoryDTO> getInventoryById(@PathVariable Long id) {
         InventoryDTO inventory = inventoryService.getById(id);
         return ResponseEntity.ok().body(inventory);
@@ -37,13 +35,13 @@ public class InventoryController {
         return ResponseEntity.ok().body(inventory);
     }
 
-    @GetMapping
+    @GetMapping("/pharmacy/{pharmacyId}")
     public ResponseEntity<List<InventoryDTO>> getInventoryByPharmacy(@PathVariable Long pharmacyId) {
         List<InventoryDTO> inventory = inventoryService.getByPharmacy(pharmacyId);
         return ResponseEntity.ok().body(inventory);
     }
 
-    @GetMapping
+    @GetMapping("/drug/{drugId}")
     public ResponseEntity<List<InventoryDTO>> getInventoryByDrug(@PathVariable Long drugId) {
         List<InventoryDTO> inventory = inventoryService.getByDrug(drugId);
         return ResponseEntity.ok().body(inventory);
@@ -54,7 +52,7 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.update(id, request));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         inventoryService.delete(id);
         return ResponseEntity.noContent().build();

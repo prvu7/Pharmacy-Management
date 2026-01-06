@@ -23,7 +23,7 @@ public class TreatmentController {
         return ResponseEntity.ok().body(treatment);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<TreatmentDTO> getByTreatmentId(@PathVariable Long id) {
         TreatmentDTO treatment = treatmentService.getById(id);
         return ResponseEntity.ok().body(treatment);
@@ -40,7 +40,7 @@ public class TreatmentController {
         return ResponseEntity.ok(treatmentService.update(id, request));
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         treatmentService.delete(id);
         return ResponseEntity.noContent().build();
