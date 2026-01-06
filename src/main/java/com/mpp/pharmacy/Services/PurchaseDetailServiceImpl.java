@@ -27,8 +27,6 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
 
     @Override
     public PurchaseDetailDTO create(PurchaseDetailRequestDTO request) {
-        log.info("Service: Creating purchase detail");
-
         if (request == null) {
             throw new InvalidRequestException("Purchase detail request cannot be null");
         }
@@ -39,8 +37,6 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
 
     @Override
     public PurchaseDetailDTO getById(Long purchaseId, Long drugId) {
-        log.debug("Service: Fetching purchase detail with purchaseId: {} and drugId: {}", purchaseId, drugId);
-
         if (purchaseId == null) {
             throw new InvalidRequestException("Purchase ID cannot be null");
         }
@@ -55,7 +51,6 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
     @Override
     @Transactional(readOnly = true)
     public List<PurchaseDetailDTO> getAll() {
-        log.debug("Service: Fetching all purchase details");
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .toList();
@@ -64,8 +59,6 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
     @Override
     @Transactional(readOnly = true)
     public List<PurchaseDetailDTO> getByPurchase(Long purchaseId) {
-        log.debug("Service: Fetching purchase details for purchase: {}", purchaseId);
-
         if (purchaseId == null) {
             throw new InvalidRequestException("Purchase ID cannot be null");
         }
@@ -79,8 +72,6 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
     @Override
     @Transactional(readOnly = true)
     public List<PurchaseDetailDTO> getByDrug(Long drugId) {
-        log.debug("Service: Fetching purchase details for drug: {}", drugId);
-
         if (drugId == null) {
             throw new InvalidRequestException("Drug ID cannot be null");
         }
@@ -93,8 +84,6 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
 
     @Override
     public PurchaseDetailDTO update(Long purchaseId, Long drugId, PurchaseDetailRequestDTO request) {
-        log.info("Service: Updating purchase detail with purchaseId: {} and drugId: {}", purchaseId, drugId);
-
         if (purchaseId == null) {
             throw new InvalidRequestException("Purchase ID cannot be null");
         }
@@ -111,8 +100,6 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
 
     @Override
     public void delete(Long purchaseId, Long drugId) {
-        log.info("Service: Deleting purchase detail with purchaseId: {} and drugId: {}", purchaseId, drugId);
-
         if (purchaseId == null) {
             throw new InvalidRequestException("Purchase ID cannot be null");
         }

@@ -27,8 +27,6 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
     @Override
     public PrescriptionDetailDTO create(PrescriptionDetailRequestDTO request) {
-        log.info("Service: Creating prescription detail");
-
         if (request == null) {
             throw new InvalidRequestException("Prescription detail request cannot be null");
         }
@@ -39,8 +37,6 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
     @Override
     public PrescriptionDetailDTO get(Long prescriptionId, Long drugId) {
-        log.debug("Service: Fetching prescription detail with prescriptionId: {} and drugId: {}", prescriptionId, drugId);
-
         if (prescriptionId == null) {
             throw new InvalidRequestException("Prescription ID cannot be null");
         }
@@ -55,7 +51,6 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
     @Override
     @Transactional(readOnly = true)
     public List<PrescriptionDetailDTO> getAll() {
-        log.debug("Service: Fetching all prescription details");
         return repository.findAll()
                 .stream()
                 .map(mapper::toDTO)
@@ -65,8 +60,6 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
     @Override
     @Transactional(readOnly = true)
     public List<PrescriptionDetailDTO> getByPrescription(Long prescriptionId) {
-        log.debug("Service: Fetching prescription details for prescription: {}", prescriptionId);
-
         if (prescriptionId == null) {
             throw new InvalidRequestException("Prescription ID cannot be null");
         }
@@ -79,8 +72,6 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
     @Override
     public PrescriptionDetailDTO update(Long prescriptionId, Long drugId, PrescriptionDetailRequestDTO request) {
-        log.info("Service: Updating prescription detail with prescriptionId: {} and drugId: {}", prescriptionId, drugId);
-
         if (prescriptionId == null) {
             throw new InvalidRequestException("Prescription ID cannot be null");
         }
@@ -97,8 +88,6 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
 
     @Override
     public void delete(Long prescriptionId, Long drugId) {
-        log.info("Service: Deleting prescription detail with prescriptionId: {} and drugId: {}", prescriptionId, drugId);
-
         if (prescriptionId == null) {
             throw new InvalidRequestException("Prescription ID cannot be null");
         }
