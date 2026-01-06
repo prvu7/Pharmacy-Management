@@ -1,67 +1,75 @@
 package com.mpp.pharmacy.Services;
 
 import com.mpp.pharmacy.DTO.PurchaseDetailDTO;
-import com.mpp.pharmacy.Entity.Drug;
-import com.mpp.pharmacy.Entity.Purchase;
-import com.mpp.pharmacy.Entity.PurchaseDetailId;
+import com.mpp.pharmacy.Domain.PurchaseDetailDomain;
 import com.mpp.pharmacy.Entity.Purchase_Detail;
-import com.mpp.pharmacy.Exception.ResourceNotFoundException;
+import com.mpp.pharmacy.Exception.InvalidRequestException;
 import com.mpp.pharmacy.Mapper.PurchaseDetailMapper;
-import com.mpp.pharmacy.Repository.DrugRepository;
 import com.mpp.pharmacy.Repository.PurchaseDetailRepository;
-import com.mpp.pharmacy.Repository.PurchaseRepository;
 import com.mpp.pharmacy.RequestDTO.PurchaseDetailRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.PurchaseDetailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class PurchaseDetailServiceImpl implements PurchaseDetailService {
 
     private final PurchaseDetailRepository repository;
-    private final PurchaseRepository purchaseRepository;
-    private final DrugRepository drugRepository;
     private final PurchaseDetailMapper mapper;
+    private final PurchaseDetailDomain purchaseDetailDomain;
 
     @Override
     public PurchaseDetailDTO create(PurchaseDetailRequestDTO request) {
-        log.info("Creating new purchase detail");
+        log.info("Service: Creating purchase detail");
 
-        Purchase purchase = purchaseRepository.findById(request.getPurchaseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase not found"));
+        if (request == null) {
+            throw new InvalidRequestException("Purchase detail request cannot be null");
+        }
 
-        Drug drug = drugRepository.findById(request.getDrugId())
-                .orElseThrow(() -> new ResourceNotFoundException("Drug not found"));
-
-        Purchase_Detail detail = mapper.fromRequest(request);
-        detail.setPurchase(purchase);
-        detail.setDrug(drug);
-
-        return mapper.toDTO(repository.save(detail));
+        Purchase_Detail created = purchaseDetailDomain.create(request);
+        return mapper.toDTO(created);
     }
 
     @Override
     public PurchaseDetailDTO getById(Long purchaseId, Long drugId) {
-        PurchaseDetailId id = new PurchaseDetailId(purchaseId, drugId);
-        Purchase_Detail detail = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase detail not found"));
+        log.debug("Service: Fetching purchase detail with purchaseId: {} and drugId: {}", purchaseId, drugId);
+
+        if (purchaseId == null) {
+            throw new InvalidRequestException("Purchase ID cannot be null");
+        }
+        if (drugId == null) {
+            throw new InvalidRequestException("Drug ID cannot be null");
+        }
+
+        Purchase_Detail detail = purchaseDetailDomain.getById(purchaseId, drugId);
         return mapper.toDTO(detail);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PurchaseDetailDTO> getAll() {
+        log.debug("Service: Fetching all purchase details");
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PurchaseDetailDTO> getByPurchase(Long purchaseId) {
+        log.debug("Service: Fetching purchase details for purchase: {}", purchaseId);
+
+        if (purchaseId == null) {
+            throw new InvalidRequestException("Purchase ID cannot be null");
+        }
+
         return repository.findByPurchase_PurchaseId(purchaseId)
                 .stream()
                 .map(mapper::toDTO)
@@ -69,7 +77,14 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PurchaseDetailDTO> getByDrug(Long drugId) {
+        log.debug("Service: Fetching purchase details for drug: {}", drugId);
+
+        if (drugId == null) {
+            throw new InvalidRequestException("Drug ID cannot be null");
+        }
+
         return repository.findByDrug_DrugId(drugId)
                 .stream()
                 .map(mapper::toDTO)
@@ -78,30 +93,33 @@ public class PurchaseDetailServiceImpl implements PurchaseDetailService {
 
     @Override
     public PurchaseDetailDTO update(Long purchaseId, Long drugId, PurchaseDetailRequestDTO request) {
-        PurchaseDetailId id = new PurchaseDetailId(purchaseId, drugId);
-        Purchase_Detail detail = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase detail not found"));
+        log.info("Service: Updating purchase detail with purchaseId: {} and drugId: {}", purchaseId, drugId);
 
-        Purchase purchase = purchaseRepository.findById(request.getPurchaseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Purchase not found"));
+        if (purchaseId == null) {
+            throw new InvalidRequestException("Purchase ID cannot be null");
+        }
+        if (drugId == null) {
+            throw new InvalidRequestException("Drug ID cannot be null");
+        }
+        if (request == null) {
+            throw new InvalidRequestException("Purchase detail request cannot be null");
+        }
 
-        Drug drug = drugRepository.findById(request.getDrugId())
-                .orElseThrow(() -> new ResourceNotFoundException("Drug not found"));
-
-        detail.setPurchase(purchase);
-        detail.setDrug(drug);
-        detail.setQuantity(request.getQuantity());
-        detail.setUnitPrice(request.getUnitPrice());
-
-        return mapper.toDTO(repository.save(detail));
+        Purchase_Detail updated = purchaseDetailDomain.update(purchaseId, drugId, request);
+        return mapper.toDTO(updated);
     }
 
     @Override
     public void delete(Long purchaseId, Long drugId) {
-        PurchaseDetailId id = new PurchaseDetailId(purchaseId, drugId);
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Purchase detail not found");
+        log.info("Service: Deleting purchase detail with purchaseId: {} and drugId: {}", purchaseId, drugId);
+
+        if (purchaseId == null) {
+            throw new InvalidRequestException("Purchase ID cannot be null");
         }
-        repository.deleteById(id);
+        if (drugId == null) {
+            throw new InvalidRequestException("Drug ID cannot be null");
+        }
+
+        purchaseDetailDomain.delete(purchaseId, drugId);
     }
 }

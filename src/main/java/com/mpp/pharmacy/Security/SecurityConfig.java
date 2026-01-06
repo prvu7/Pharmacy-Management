@@ -35,7 +35,7 @@ public class SecurityConfig {
 
     public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.resolver = resolver;
-    } 
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

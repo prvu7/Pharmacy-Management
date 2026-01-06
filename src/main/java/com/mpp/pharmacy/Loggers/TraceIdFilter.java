@@ -22,7 +22,15 @@ public class TraceIdFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         try {
-            String traceId = UUID.randomUUID().toString();
+            String traceId = null;
+            if (request instanceof HttpServletRequest) {
+                HttpServletRequest httpRequest = (HttpServletRequest) request;
+                traceId = httpRequest.getHeader("X-Trace-ID");
+            }
+            if (traceId == null || traceId.isEmpty()) {
+                traceId = UUID.randomUUID().toString();
+            }
+            
             MDC.put(TRACE_ID_KEY, traceId);
 
             if (request instanceof HttpServletRequest) {
