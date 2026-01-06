@@ -196,6 +196,7 @@
 
     <logger name="DUPLICATE_RESOURCE_ERROR" level="INFO" additivity="false">
         <appender-ref ref="DUPLICATE_RESOURCE_ERROR_FILE"/>
+    </logger>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
