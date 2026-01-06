@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
-@RequestMapping("/api/purchase")
+@RequestMapping("/api/purchases")
 public class PurchaseController {
 
     private final PurchaseService purchaseService;
