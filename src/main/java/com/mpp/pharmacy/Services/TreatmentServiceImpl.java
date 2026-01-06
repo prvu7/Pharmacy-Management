@@ -27,8 +27,6 @@ public class TreatmentServiceImpl implements TreatmentService {
 
     @Override
     public TreatmentDTO create(TreatmentRequestDTO request) {
-        log.info("Service: Creating treatment");
-
         if (request == null) {
             throw new InvalidRequestException("Treatment request cannot be null");
         }
@@ -39,8 +37,6 @@ public class TreatmentServiceImpl implements TreatmentService {
 
     @Override
     public TreatmentDTO getById(Long id) {
-        log.debug("Service: Fetching treatment with id: {}", id);
-
         if (id == null) {
             throw new InvalidRequestException("Treatment ID cannot be null");
         }
@@ -52,7 +48,6 @@ public class TreatmentServiceImpl implements TreatmentService {
     @Override
     @Transactional(readOnly = true)
     public List<TreatmentDTO> getAll() {
-        log.debug("Service: Fetching all treatments");
         return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .toList();
@@ -60,8 +55,6 @@ public class TreatmentServiceImpl implements TreatmentService {
 
     @Override
     public TreatmentDTO update(Long id, TreatmentRequestDTO request) {
-        log.info("Service: Updating treatment with id: {}", id);
-
         if (id == null) {
             throw new InvalidRequestException("Treatment ID cannot be null");
         }
@@ -75,8 +68,6 @@ public class TreatmentServiceImpl implements TreatmentService {
 
     @Override
     public void delete(Long id) {
-        log.info("Service: Deleting treatment with id: {}", id);
-
         if (id == null) {
             throw new InvalidRequestException("Treatment ID cannot be null");
         }

@@ -27,8 +27,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public PurchaseDTO create(PurchaseRequestDTO request) {
-        log.info("Service: Creating purchase");
-
         if (request == null) {
             throw new InvalidRequestException("Purchase request cannot be null");
         }
@@ -39,8 +37,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public PurchaseDTO getById(Long id) {
-        log.debug("Service: Fetching purchase with id: {}", id);
-
         if (id == null) {
             throw new InvalidRequestException("Purchase ID cannot be null");
         }
@@ -52,7 +48,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(readOnly = true)
     public List<PurchaseDTO> getAll() {
-        log.debug("Service: Fetching all purchases");
         return purchaseRepository.findAll()
                 .stream()
                 .map(mapper::toDTO)
@@ -62,8 +57,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(readOnly = true)
     public List<PurchaseDTO> getByPatient(Long patientId) {
-        log.debug("Service: Fetching purchases for patient: {}", patientId);
-
         if (patientId == null) {
             throw new InvalidRequestException("Patient ID cannot be null");
         }
@@ -77,8 +70,6 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(readOnly = true)
     public List<PurchaseDTO> getByPharmacy(Long pharmacyId) {
-        log.debug("Service: Fetching purchases for pharmacy: {}", pharmacyId);
-
         if (pharmacyId == null) {
             throw new InvalidRequestException("Pharmacy ID cannot be null");
         }
@@ -91,8 +82,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public PurchaseDTO update(Long id, PurchaseRequestDTO request) {
-        log.info("Service: Updating purchase with id: {}", id);
-
         if (id == null) {
             throw new InvalidRequestException("Purchase ID cannot be null");
         }
@@ -106,8 +95,6 @@ public class PurchaseServiceImpl implements PurchaseService {
 
     @Override
     public void delete(Long id) {
-        log.info("Service: Deleting purchase with id: {}", id);
-
         if (id == null) {
             throw new InvalidRequestException("Purchase ID cannot be null");
         }
