@@ -20,6 +20,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.mpp.pharmacy.Exception.ResourceNotFoundException;
 
 @WebMvcTest(PrescriptionController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -33,6 +34,19 @@ class PrescriptionControllerTest {
 
     @MockBean
     private PrescriptionDetailServiceImpl prescriptionDetailService;
+
+    @MockBean
+    private com.mpp.pharmacy.Domain.PrescriptionDomain prescriptionDomain;
+    
+    @MockBean
+    private com.mpp.pharmacy.Mapper.PrescriptionMapper prescriptionMapper;
+    
+    @MockBean
+    private com.mpp.pharmacy.Domain.PrescriptionDetailDomain prescriptionDetailDomain;
+    
+    @MockBean
+    private com.mpp.pharmacy.Mapper.PrescriptionDetailMapper prescriptionDetailMapper;
+
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -171,5 +185,16 @@ class PrescriptionControllerTest {
 
         mockMvc.perform(delete("/api/prescriptions/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void getPrescription_NotFound_ShouldThrowException() throws Exception {
+        Long prescriptionId = 999L;
+
+        when(prescriptionService.getById(eq(prescriptionId)))
+                .thenThrow(new ResourceNotFoundException("Prescription not found"));
+
+        mockMvc.perform(get("/api/prescriptions/{id}", prescriptionId))
+                .andExpect(status().isNotFound());
     }
 }
