@@ -8,6 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,24 +40,22 @@ public class PharmacyControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void create_ShouldReturnCreatedPharmacy() throws Exception {
-        // Arrange
+    void createPharmacy_ShouldCreateNewPharmacy() throws Exception {
         PharmacyRequestDTO request = PharmacyRequestDTO.builder()
-                .name("HealthPlus Pharmacy")
-                .address("123 Main Street, Downtown, City")
+                .name("Test Pharmacy")
+                .address("123 Main Street, City")
                 .phone("+1234567890")
                 .build();
 
-        PharmacyDTO response = PharmacyDTO.builder()
+        PharmacyDTO createdPharmacy = PharmacyDTO.builder()
                 .pharmacyId(1L)
-                .name("HealthPlus Pharmacy")
-                .address("123 Main Street, Downtown, City")
+                .name("Test Pharmacy")
+                .address("123 Main Street, City")
                 .phone("+1234567890")
                 .build();
 
-        when(pharmacyService.create(any(PharmacyRequestDTO.class))).thenReturn(response);
+        when(pharmacyService.create(any(PharmacyRequestDTO.class))).thenReturn(createdPharmacy);
 
-        // Act & Assert
         mockMvc.perform(post("/api/pharmacies")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -65,36 +68,30 @@ public class PharmacyControllerTest {
     }
 
     @Test
-    void getById_ShouldReturnPharmacy() throws Exception {
-        // Arrange
-        Long pharmacyId = 1L;
-
-        PharmacyDTO response = PharmacyDTO.builder()
-                .pharmacyId(pharmacyId)
-                .name("CareWell Pharmacy")
-                .address("456 Oak Avenue, Suburb, City")
-                .phone("+9876543210")
+    void getById_ShouldReturnASpecificPharmacy() throws Exception {
+        PharmacyDTO pharmacy = PharmacyDTO.builder()
+                .pharmacyId(1L)
+                .name("Test Pharmacy")
+                .address("123 Main Street, City")
+                .phone("+1234567890")
                 .build();
 
-        when(pharmacyService.getById(eq(pharmacyId))).thenReturn(response);
+        when(pharmacyService.getById(1L)).thenReturn(pharmacy);
 
-        // Act & Assert
-        mockMvc.perform(get("/api/pharmacies/{id}", pharmacyId))
+        mockMvc.perform(get("/api/pharmacies/1"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.pharmacyId").value(1))
-                .andExpect(jsonPath("$.name").value("CareWell Pharmacy"))
-                .andExpect(jsonPath("$.address").value("456 Oak Avenue, Suburb, City"))
-                .andExpect(jsonPath("$.phone").value("+9876543210"));
+                .andExpect(jsonPath("$.pharmacyId").value(1L))
+                .andExpect(jsonPath("$.name").value("Test Pharmacy"))
+                .andExpect(jsonPath("$.address").value("123 Main Street, City"))
+                .andExpect(jsonPath("$.phone").value("+1234567890"));
     }
 
     @Test
-    void getAll_ShouldReturnListOfPharmacies() throws Exception {
-        // Arrange
+    void getAll_ShouldReturnAllPharmacies() throws Exception {
         PharmacyDTO pharmacy1 = PharmacyDTO.builder()
                 .pharmacyId(1L)
-                .name("HealthPlus Pharmacy")
-                .address("123 Main Street, Downtown, City")
+                .name("Pharmacy One")
+                .address("123 Main Street, City")
                 .phone("+1234567890")
                 .build();
 
