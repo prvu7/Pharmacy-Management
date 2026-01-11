@@ -8,6 +8,7 @@ import com.mpp.pharmacy.Repository.DrugRepository;
 import com.mpp.pharmacy.RequestDTO.DrugRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +33,10 @@ public class DrugDomain {
                 .build();
 
         return repository.save(drug);
+    }
+
+    public List<Drug> getAll(){
+        return repository.findAll();
     }
 
     public Drug update(Long id, DrugRequestDTO request) {
