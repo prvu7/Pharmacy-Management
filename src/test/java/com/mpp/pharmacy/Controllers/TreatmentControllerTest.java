@@ -12,12 +12,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 
 
 @WebMvcTest(TreatmentController.class)
@@ -32,6 +36,79 @@ public class TreatmentControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Test
+    void create_ShouldReturnCreatedTreatment() throws Exception {
+        // Arrange
+        TreatmentRequestDTO request = TreatmentRequestDTO.builder()
+                .treatmentName("Physical Therapy")
+                .description("Weekly physical therapy sessions")
+                .doctorId(5L)
+                .startDate(java.time.LocalDate.of(2025, 1, 1))
+                .endDate(java.time.LocalDate.of(2025, 3, 31))
+                .build();
+
+        TreatmentDTO createdTreatment = TreatmentDTO.builder()
+                .treatmentId(1L)
+                .treatmentName("Physical Therapy")
+                .description("Weekly physical therapy sessions")
+                .doctorId(5L)
+                .startDate(java.time.LocalDate.of(2025, 1, 1))
+                .endDate(java.time.LocalDate.of(2025, 3, 31))
+                .build();
+
+        when(treatmentService.create(any(TreatmentRequestDTO.class))).thenReturn(createdTreatment);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/treatment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.treatmentId", is(1)))
+                .andExpect(jsonPath("$.treatmentName", is("Physical Therapy")))
+                .andExpect(jsonPath("$.description", is("Weekly physical therapy sessions")))
+                .andExpect(jsonPath("$.doctorId", is(5)))
+                .andExpect(jsonPath("$.startDate", is("2025-01-01")))
+                .andExpect(jsonPath("$.endDate", is("2025-03-31")));
+    }
+
+    @Test
+    void getTreatments_ShouldReturnListOfTreatments() throws Exception {
+        // Arrange
+        TreatmentDTO treatment1 = TreatmentDTO.builder()
+                .treatmentId(1L)
+                .treatmentName("Physical Therapy")
+                .description("Weekly physical therapy sessions")
+                .doctorId(5L)
+                .startDate(java.time.LocalDate.of(2025, 1, 1))
+                .endDate(java.time.LocalDate.of(2025, 3, 31))
+                .build();
+
+        TreatmentDTO treatment2 = TreatmentDTO.builder()
+                .treatmentId(2L)
+                .treatmentName("Chemotherapy")
+                .description("Cancer treatment - 6 sessions")
+                .doctorId(3L)
+                .startDate(java.time.LocalDate.of(2025, 2, 1))
+                .endDate(java.time.LocalDate.of(2025, 8, 31))
+                .build();
+
+        List<TreatmentDTO> treatments = Arrays.asList(treatment1, treatment2);
+        when(treatmentService.getAll()).thenReturn(treatments);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/treatment"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].treatmentId", is(1)))
+                .andExpect(jsonPath("$[0].treatmentName", is("Physical Therapy")))
+                .andExpect(jsonPath("$[0].doctorId", is(5)))
+                .andExpect(jsonPath("$[1].treatmentId", is(2)))
+                .andExpect(jsonPath("$[1].treatmentName", is("Chemotherapy")))
+                .andExpect(jsonPath("$[1].doctorId", is(3)));
+    }
 
     @Test
     void getByTreatmentId_ShouldReturnASpecificTreatment() throws Exception {
