@@ -103,7 +103,7 @@ class PrescriptionControllerTest {
 
         when(prescriptionDetailService.create(any(PrescriptionDetailRequestDTO.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/prescription-details")
+        mockMvc.perform(post("/api/prescriptions/prescription-details")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -115,7 +115,7 @@ class PrescriptionControllerTest {
 
         when(prescriptionDetailService.getAll()).thenReturn(List.of(prescriptionDetail));
 
-        mockMvc.perform(get("/api/prescription-details"))
+        mockMvc.perform(get("/api/prescriptions/prescription-details"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.size()").value(1));
@@ -129,7 +129,7 @@ class PrescriptionControllerTest {
 
         when(prescriptionDetailService.get(eq(prescriptionId), eq(drugId))).thenReturn(response);
 
-        mockMvc.perform(get("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
+        mockMvc.perform(get("/api/prescriptions/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
                 .andExpect(status().isOk());
     }
 
@@ -158,7 +158,7 @@ class PrescriptionControllerTest {
                 any(PrescriptionDetailRequestDTO.class)
         )).thenReturn(response);
 
-        mockMvc.perform(put("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId)
+        mockMvc.perform(put("/api/prescriptions/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -169,7 +169,7 @@ class PrescriptionControllerTest {
         Long prescriptionId = 1L;
         Long drugId = 1L;
 
-        mockMvc.perform(delete("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
+        mockMvc.perform(delete("/api/prescriptions/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
                 .andExpect(status().isNoContent());
     }
 }
