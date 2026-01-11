@@ -1,5 +1,7 @@
 package com.mpp.pharmacy.Domain;
 
+import java.util.List;
+
 import com.mpp.pharmacy.Entity.Person;
 import com.mpp.pharmacy.Entity.Prescription;
 import com.mpp.pharmacy.Entity.Treatment;
@@ -11,8 +13,10 @@ import com.mpp.pharmacy.Repository.PrescriptionRepository;
 import com.mpp.pharmacy.Repository.TreatmentRepository;
 import com.mpp.pharmacy.RequestDTO.PrescriptionRequestDTO;
 import com.mpp.pharmacy.Validators.PrescriptionValidator;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,7 +30,6 @@ public class PrescriptionDomain {
     private final PrescriptionValidator validator;
 
     public Prescription create(PrescriptionRequestDTO request) {
-        log.debug("Domain: Creating prescription");
 
         Person patient = validateAndFetchPatient(request.getPatientId());
         Person doctor = validateAndFetchDoctor(request.getDoctorId());
@@ -46,12 +49,10 @@ public class PrescriptionDomain {
 
         validator.validateForCreation(prescription);
 
-        log.info("Domain: Prescription validation passed, saving to database");
         return repository.save(prescription);
     }
 
     public Prescription update(Long id, PrescriptionRequestDTO request) {
-        log.debug("Domain: Updating prescription with id: {}", id);
 
         Prescription existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription not found: " + id));
@@ -72,7 +73,6 @@ public class PrescriptionDomain {
 
         validator.validateForUpdate(existing);
 
-        log.info("Domain: Prescription update validation passed, saving to database");
         return repository.save(existing);
     }
 
@@ -81,14 +81,16 @@ public class PrescriptionDomain {
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription not found: " + id));
     }
 
+    public List<Prescription> getAll() {
+        return repository.findAll();
+    }
+
     public void delete(Long id) {
-        log.debug("Domain: Deleting prescription with id: {}", id);
 
         Prescription prescription = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription not found: " + id));
 
         repository.deleteById(id);
-        log.info("Domain: Prescription deleted successfully");
     }
 
     private Person validateAndFetchPatient(Long patientId) {

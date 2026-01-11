@@ -3,16 +3,12 @@ package com.mpp.pharmacy.Services;
 
 import com.mpp.pharmacy.DTO.DrugDTO;
 import com.mpp.pharmacy.Entity.Drug;
-import com.mpp.pharmacy.Exception.ResourceNotFoundException;
-import com.mpp.pharmacy.Loggers.CustomLogger;
-import com.mpp.pharmacy.Loggers.LogType;
 import com.mpp.pharmacy.Mapper.DrugMapper;
-import com.mpp.pharmacy.Repository.DrugRepository;
+import com.mpp.pharmacy.Domain.DrugDomain;
 import com.mpp.pharmacy.RequestDTO.DrugRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.DrugService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,9 +18,8 @@ import java.util.List;
 @Slf4j
 public class DrugServiceImpl implements DrugService {
 
-    private final DrugRepository repository;
+    private final DrugDomain domain;
     private final DrugMapper mapper;
-    private final CustomLogger logger = CustomLogger.getInstance();
 
     // =====================================================================
     // CRUD operations
@@ -33,48 +28,54 @@ public class DrugServiceImpl implements DrugService {
 
     @Override
     public DrugDTO create(DrugRequestDTO request) {
-        Drug drug = mapper.toEntity(request);
-        Drug saved = repository.save(drug);
-        return mapper.toDTO(saved);
+        if (request == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
+
+        Drug response = domain.create(request);
+        
+        return mapper.toDTO(response);
     }
 
     @Override
     public DrugDTO getById(Long id) {
-        Drug drug = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Drug not found: " + id));
-        return mapper.toDTO(drug);
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+
+        Drug response = domain.getById(id);
+
+        return mapper.toDTO(response);
     }
 
     @Override
     public List<DrugDTO> getAll() {
-        return repository.findAll()
-                .stream()
+        return domain.getAll().stream()
                 .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
     public DrugDTO update(Long id, DrugRequestDTO request) {
-        Drug existing = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Drug not found: " + id));
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
 
-        existing.setDrugName(request.getDrugName());
-        existing.setGenericName(request.getGenericName());
-        existing.setDescription(request.getDescription());
-        existing.setDosageForm(request.getDosageForm());
-        existing.setManufacturer(request.getManufacturer());
-        existing.setPrice(request.getPrice());
+        if (request == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
 
-        Drug updated = repository.save(existing);
+        Drug response =  domain.update(id, request);
 
-        return mapper.toDTO(updated);
+        return mapper.toDTO(response);
     }
 
     @Override
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Drug not found: " + id);
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
         }
-        repository.deleteById(id);
+
+        domain.delete(id);
     }
 }

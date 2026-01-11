@@ -9,7 +9,7 @@ import com.mpp.pharmacy.Validators.PersonValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
+import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -19,8 +19,6 @@ public class PersonDomain {
     private final PersonValidator validator;
 
     public Person create(PersonRequestDTO request) {
-        log.debug("Domain: Creating person with email: {}", request.getEmail());
-
         // Create entity from request
         Person person = Person.builder()
                 .firstName(request.getFirstName())
@@ -46,13 +44,10 @@ public class PersonDomain {
             throw new DuplicateResourceException("Phone number already exists: " + request.getPhone());
         }
 
-        log.info("Domain: Person validation passed, saving to database");
         return repository.save(person);
     }
 
     public Person update(Long id, PersonRequestDTO request) {
-        log.debug("Domain: Updating person with id: {}", id);
-
         // Fetch existing person
         Person existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found: " + id));
@@ -86,8 +81,11 @@ public class PersonDomain {
                     }
                 });
 
-        log.info("Domain: Person update validation passed, saving to database");
         return repository.save(existing);
+    }
+
+    public List<Person> getAll() {
+        return repository.findAll();
     }
 
     public Person getById(Long id) {
@@ -96,7 +94,6 @@ public class PersonDomain {
     }
 
     public void delete(Long id) {
-        log.debug("Domain: Deleting person with id: {}", id);
 
         Person person = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found: " + id));
@@ -106,7 +103,6 @@ public class PersonDomain {
         // You can add these checks here based on your business requirements
 
         repository.deleteById(id);
-        log.info("Domain: Person deleted successfully");
     }
 
     public void validateRoleForAction(Long personId, String requiredRole, String action) {

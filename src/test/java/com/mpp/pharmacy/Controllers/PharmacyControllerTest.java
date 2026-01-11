@@ -13,6 +13,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -56,9 +60,10 @@ public class PharmacyControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.pharmacyId").value(1L))
-                .andExpect(jsonPath("$.name").value("Test Pharmacy"))
-                .andExpect(jsonPath("$.address").value("123 Main Street, City"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.pharmacyId").value(1))
+                .andExpect(jsonPath("$.name").value("HealthPlus Pharmacy"))
+                .andExpect(jsonPath("$.address").value("123 Main Street, Downtown, City"))
                 .andExpect(jsonPath("$.phone").value("+1234567890"));
     }
 
@@ -92,55 +97,75 @@ public class PharmacyControllerTest {
 
         PharmacyDTO pharmacy2 = PharmacyDTO.builder()
                 .pharmacyId(2L)
-                .name("Pharmacy Two")
-                .address("456 Second Avenue, Town")
-                .phone("+0987654321")
+                .name("CareWell Pharmacy")
+                .address("456 Oak Avenue, Suburb, City")
+                .phone("+9876543210")
                 .build();
 
-        List<PharmacyDTO> pharmacies = Arrays.asList(pharmacy1, pharmacy2);
+        PharmacyDTO pharmacy3 = PharmacyDTO.builder()
+                .pharmacyId(3L)
+                .name("MediCare & Co.")
+                .address("789 Pine Road, Uptown, City")
+                .phone("+1122334455")
+                .build();
 
-        when(pharmacyService.getAll()).thenReturn(pharmacies);
+        when(pharmacyService.getAll()).thenReturn(List.of(pharmacy1, pharmacy2, pharmacy3));
 
+        // Act & Assert
         mockMvc.perform(get("/api/pharmacies"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].pharmacyId").value(1L))
-                .andExpect(jsonPath("$[0].name").value("Pharmacy One"))
-                .andExpect(jsonPath("$[1].pharmacyId").value(2L))
-                .andExpect(jsonPath("$[1].name").value("Pharmacy Two"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.size()").value(3))
+                .andExpect(jsonPath("$[0].pharmacyId").value(1))
+                .andExpect(jsonPath("$[0].name").value("HealthPlus Pharmacy"))
+                .andExpect(jsonPath("$[0].address").value("123 Main Street, Downtown, City"))
+                .andExpect(jsonPath("$[1].pharmacyId").value(2))
+                .andExpect(jsonPath("$[1].name").value("CareWell Pharmacy"))
+                .andExpect(jsonPath("$[1].phone").value("+9876543210"))
+                .andExpect(jsonPath("$[2].pharmacyId").value(3))
+                .andExpect(jsonPath("$[2].name").value("MediCare & Co."));
     }
 
     @Test
-    void update_ShouldUpdateExistingPharmacy() throws Exception {
+    void update_ShouldReturnUpdatedPharmacy() throws Exception {
+        // Arrange
+        Long pharmacyId = 1L;
+
         PharmacyRequestDTO request = PharmacyRequestDTO.builder()
-                .name("Updated Pharmacy")
-                .address("789 Updated Street, City")
-                .phone("+1112223333")
+                .name("HealthPlus Pharmacy - Updated")
+                .address("123 Main Street, Suite 200, Downtown, City")
+                .phone("+1234567899")
                 .build();
 
-        PharmacyDTO updatedPharmacy = PharmacyDTO.builder()
-                .pharmacyId(1L)
-                .name("Updated Pharmacy")
-                .address("789 Updated Street, City")
-                .phone("+1112223333")
+        PharmacyDTO response = PharmacyDTO.builder()
+                .pharmacyId(pharmacyId)
+                .name("HealthPlus Pharmacy - Updated")
+                .address("123 Main Street, Suite 200, Downtown, City")
+                .phone("+1234567899")
                 .build();
 
-        when(pharmacyService.update(eq(1L), any(PharmacyRequestDTO.class))).thenReturn(updatedPharmacy);
+        when(pharmacyService.update(eq(pharmacyId), any(PharmacyRequestDTO.class))).thenReturn(response);
 
-        mockMvc.perform(put("/api/pharmacies/1")
+        // Act & Assert
+        mockMvc.perform(put("/api/pharmacies/{id}", pharmacyId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.pharmacyId").value(1L))
-                .andExpect(jsonPath("$.name").value("Updated Pharmacy"))
-                .andExpect(jsonPath("$.address").value("789 Updated Street, City"))
-                .andExpect(jsonPath("$.phone").value("+1112223333"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.pharmacyId").value(1))
+                .andExpect(jsonPath("$.name").value("HealthPlus Pharmacy - Updated"))
+                .andExpect(jsonPath("$.address").value("123 Main Street, Suite 200, Downtown, City"))
+                .andExpect(jsonPath("$.phone").value("+1234567899"));
     }
 
     @Test
-    void delete_ShouldDeletePharmacy() throws Exception {
-        doNothing().when(pharmacyService).delete(1L);
+    void delete_ShouldReturnNoContent() throws Exception {
+        // Arrange
+        Long pharmacyId = 1L;
+        doNothing().when(pharmacyService).delete(eq(pharmacyId));
 
-        mockMvc.perform(delete("/api/pharmacies/1"))
+        // Act & Assert
+        mockMvc.perform(delete("/api/pharmacies/{id}", pharmacyId))
                 .andExpect(status().isNoContent());
     }
 }

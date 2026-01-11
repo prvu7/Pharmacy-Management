@@ -11,6 +11,9 @@ import com.mpp.pharmacy.RequestDTO.TreatmentRequestDTO;
 import com.mpp.pharmacy.Validators.TreatmentValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +26,6 @@ public class TreatmentDomain {
     private final TreatmentValidator validator;
 
     public Treatment create(TreatmentRequestDTO request) {
-        log.debug("Domain: Creating treatment: {}", request.getTreatmentName());
 
         Person doctor = validateAndFetchDoctor(request.getDoctorId());
 
@@ -37,12 +39,10 @@ public class TreatmentDomain {
 
         validator.validateForCreation(treatment);
 
-        log.info("Domain: Treatment validation passed, saving to database");
         return repository.save(treatment);
     }
 
     public Treatment update(Long id, TreatmentRequestDTO request) {
-        log.debug("Domain: Updating treatment with id: {}", id);
 
         Treatment existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Treatment not found: " + id));
@@ -57,7 +57,6 @@ public class TreatmentDomain {
 
         validator.validateForUpdate(existing);
 
-        log.info("Domain: Treatment update validation passed, saving to database");
         return repository.save(existing);
     }
 
@@ -67,13 +66,15 @@ public class TreatmentDomain {
     }
 
     public void delete(Long id) {
-        log.debug("Domain: Deleting treatment with id: {}", id);
 
         Treatment treatment = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Treatment not found: " + id));
 
         repository.deleteById(id);
-        log.info("Domain: Treatment deleted successfully");
+    }
+
+    public List<Treatment> getAll() {
+        return repository.findAll();
     }
 
     private Person validateAndFetchDoctor(Long doctorId) {

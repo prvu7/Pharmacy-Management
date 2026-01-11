@@ -18,9 +18,18 @@ logging:
     root: INFO
     com.example.pharmacy: DEBUG
 app:
+  fda:
+    api-key: ${fda-api-key}
   security:
     api-key-name: ${api-key-name}
     api-key-value: ${api-key-value}
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
 
 server:
   port: 8080

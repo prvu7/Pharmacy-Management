@@ -9,6 +9,7 @@ import com.mpp.pharmacy.ServiceInterface.PrescriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -24,25 +25,25 @@ public class PrescriptionController {
          PRESCRIPTIONS CRUD
        ===================================================== */
 
-    @PostMapping("/prescriptions")
+    @PostMapping
     public ResponseEntity<PrescriptionDTO> createPrescription(@RequestBody PrescriptionRequestDTO request) {
         PrescriptionDTO prescription = prescriptionService.create(request);
         return ResponseEntity.ok(prescription);
     }
 
-    @GetMapping("/prescriptions")
+    @GetMapping
     public ResponseEntity<List<PrescriptionDTO>> getAllPrescriptions() {
         List<PrescriptionDTO> prescriptions = prescriptionService.getAll();
         return ResponseEntity.ok(prescriptions);
     }
 
-    @GetMapping("/prescriptions/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<PrescriptionDTO> getPrescription(@PathVariable Long id) {
         PrescriptionDTO prescription = prescriptionService.getById(id);
         return ResponseEntity.ok(prescription);
     }
 
-    @PutMapping("/prescriptions/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity <PrescriptionDTO>  updatePrescription(
             @PathVariable Long id,
             @RequestBody PrescriptionRequestDTO request
@@ -50,7 +51,7 @@ public class PrescriptionController {
         return ResponseEntity.ok(prescriptionService.update(id, request));
     }
 
-    @DeleteMapping("/prescriptions/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<Void> deletePrescription(@PathVariable Long id) {
         prescriptionService.delete(id);
         return ResponseEntity.noContent().build();
@@ -84,7 +85,7 @@ public class PrescriptionController {
         return ResponseEntity.ok(prescriptionDetail);
     }
 
-    @GetMapping("/prescriptions/{prescriptionId}/details")
+    @GetMapping("/{prescriptionId}/details")
     public ResponseEntity<List<PrescriptionDetailDTO>> getDetailsByPrescription(
             @PathVariable Long prescriptionId
     ) {

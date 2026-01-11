@@ -139,6 +139,17 @@
         </encoder>
     </appender>
 
+    <appender name="DUPLICATE_RESOURCE_ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/duplicate-resource-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/duplicate-resource-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - [TraceID: %X{traceId}] [Class: %C] [Method: %M] [Line: %L] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="INVENTORY" level="INFO" additivity="false">
         <appender-ref ref="INVENTORY_FILE"/>
     </logger>
@@ -181,6 +192,10 @@
 
     <logger name="DATABASE_ERROR" level="INFO" additivity="false">
         <appender-ref ref="DATABASE_ERROR_FILE"/>
+    </logger>
+
+    <logger name="DUPLICATE_RESOURCE_ERROR" level="INFO" additivity="false">
+        <appender-ref ref="DUPLICATE_RESOURCE_ERROR_FILE"/>
     </logger>
 
     <root level="INFO">

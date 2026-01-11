@@ -20,6 +20,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.mpp.pharmacy.Exception.ResourceNotFoundException;
 
 @WebMvcTest(PrescriptionController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -33,6 +34,19 @@ class PrescriptionControllerTest {
 
     @MockBean
     private PrescriptionDetailServiceImpl prescriptionDetailService;
+
+    @MockBean
+    private com.mpp.pharmacy.Domain.PrescriptionDomain prescriptionDomain;
+    
+    @MockBean
+    private com.mpp.pharmacy.Mapper.PrescriptionMapper prescriptionMapper;
+    
+    @MockBean
+    private com.mpp.pharmacy.Domain.PrescriptionDetailDomain prescriptionDetailDomain;
+    
+    @MockBean
+    private com.mpp.pharmacy.Mapper.PrescriptionDetailMapper prescriptionDetailMapper;
+
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -103,7 +117,7 @@ class PrescriptionControllerTest {
 
         when(prescriptionDetailService.create(any(PrescriptionDetailRequestDTO.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/prescription-details")
+        mockMvc.perform(post("/api/prescriptions/prescription-details")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -115,7 +129,7 @@ class PrescriptionControllerTest {
 
         when(prescriptionDetailService.getAll()).thenReturn(List.of(prescriptionDetail));
 
-        mockMvc.perform(get("/api/prescription-details"))
+        mockMvc.perform(get("/api/prescriptions/prescription-details"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.size()").value(1));
@@ -129,7 +143,7 @@ class PrescriptionControllerTest {
 
         when(prescriptionDetailService.get(eq(prescriptionId), eq(drugId))).thenReturn(response);
 
-        mockMvc.perform(get("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
+        mockMvc.perform(get("/api/prescriptions/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
                 .andExpect(status().isOk());
     }
 
@@ -158,7 +172,7 @@ class PrescriptionControllerTest {
                 any(PrescriptionDetailRequestDTO.class)
         )).thenReturn(response);
 
-        mockMvc.perform(put("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId)
+        mockMvc.perform(put("/api/prescriptions/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -169,7 +183,18 @@ class PrescriptionControllerTest {
         Long prescriptionId = 1L;
         Long drugId = 1L;
 
-        mockMvc.perform(delete("/api/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
+        mockMvc.perform(delete("/api/prescriptions/prescription-details/{prescriptionId}/{drugId}", prescriptionId, drugId))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void getPrescription_NotFound_ShouldThrowException() throws Exception {
+        Long prescriptionId = 999L;
+
+        when(prescriptionService.getById(eq(prescriptionId)))
+                .thenThrow(new ResourceNotFoundException("Prescription not found"));
+
+        mockMvc.perform(get("/api/prescriptions/{id}", prescriptionId))
+                .andExpect(status().isNotFound());
     }
 }

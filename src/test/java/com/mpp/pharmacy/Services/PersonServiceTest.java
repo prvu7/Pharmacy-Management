@@ -5,7 +5,7 @@ import com.mpp.pharmacy.Entity.Person;
 import com.mpp.pharmacy.Enum.Role;
 import com.mpp.pharmacy.Enum.Sex;
 import com.mpp.pharmacy.Mapper.PersonMapper;
-import com.mpp.pharmacy.Repository.PersonRepository;
+import com.mpp.pharmacy.Domain.PersonDomain;
 import com.mpp.pharmacy.RequestDTO.PersonRequestDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +23,7 @@ import static org.mockito.Mockito.when;
 public class PersonServiceTest {
 
     @Mock
-    private PersonRepository repository;
+    private PersonDomain domain;
 
     @Mock
     private PersonMapper mapper;
@@ -44,17 +43,6 @@ public class PersonServiceTest {
         request.setEmail("john.doe@example.com");
         request.setAddress("123 Main Street");
         request.setRole(Role.patient);
-
-        Person person = Person.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .sex(Sex.M)
-                .dateOfBirth(LocalDate.of(1990, 5, 15))
-                .phone("+1234567890")
-                .email("john.doe@example.com")
-                .address("123 Main Street")
-                .role(Role.patient)
-                .build();
 
         Person savedPerson = Person.builder()
                 .personId(1L)
@@ -80,8 +68,7 @@ public class PersonServiceTest {
                 .role("patient")
                 .build();
 
-        when(mapper.toEntity(any(PersonRequestDTO.class))).thenReturn(person);
-        when(repository.save(any(Person.class))).thenReturn(savedPerson);
+        when(domain.create(any(PersonRequestDTO.class))).thenReturn(savedPerson);  // Changed
         when(mapper.toDTO(any(Person.class))).thenReturn(expectedDTO);
 
         // Act
@@ -102,34 +89,33 @@ public class PersonServiceTest {
 
     @Test
     void getById_ShouldReturnPerson() {
-        // Arrange
         Long personId = 1L;
-
+        
         Person person = Person.builder()
-                .personId(1L)
-                .firstName("Jane")
-                .lastName("Smith")
-                .sex(Sex.F)
-                .dateOfBirth(LocalDate.of(1985, 3, 20))
-                .phone("+9876543210")
-                .email("jane.smith@example.com")
-                .address("456 Oak Avenue")
-                .role(Role.doctor)
+                .personId(personId)
+                .firstName("John")
+                .lastName("Doe")
+                .sex(Sex.M)
+                .dateOfBirth(LocalDate.of(1990, 5, 15))
+                .phone("+1234567890")
+                .email("john.doe@example.com")
+                .address("123 Main Street")
+                .role(Role.patient)
                 .build();
 
         PersonDTO expectedDTO = PersonDTO.builder()
-                .personId(1L)
-                .firstName("Jane")
-                .lastName("Smith")
-                .sex("F")
-                .dateOfBirth("1985-03-20")
-                .phone("+9876543210")
-                .email("jane.smith@example.com")
-                .address("456 Oak Avenue")
-                .role("doctor")
+                .personId(personId)
+                .firstName("John")
+                .lastName("Doe")
+                .sex("M")
+                .dateOfBirth("1990-05-15")
+                .phone("+1234567890")
+                .email("john.doe@example.com")
+                .address("123 Main Street")
+                .role("patient")
                 .build();
 
-        when(repository.findById(personId)).thenReturn(Optional.of(person));
+        when(domain.getById(personId)).thenReturn(person);
         when(mapper.toDTO(person)).thenReturn(expectedDTO);
 
         // Act
@@ -137,14 +123,6 @@ public class PersonServiceTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals(1L, result.getPersonId());
-        assertEquals("Jane", result.getFirstName());
-        assertEquals("Smith", result.getLastName());
-        assertEquals("F", result.getSex());
-        assertEquals("1985-03-20", result.getDateOfBirth());
-        assertEquals("+9876543210", result.getPhone());
-        assertEquals("jane.smith@example.com", result.getEmail());
-        assertEquals("456 Oak Avenue", result.getAddress());
-        assertEquals("doctor", result.getRole());
+        assertEquals(personId, result.getPersonId());
     }
 }

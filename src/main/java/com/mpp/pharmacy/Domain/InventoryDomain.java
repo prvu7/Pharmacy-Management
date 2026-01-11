@@ -14,7 +14,7 @@ import com.mpp.pharmacy.Validators.InventoryValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -28,8 +28,6 @@ public class InventoryDomain {
     private final InventoryValidator validator;
 
     public Inventory create(InventoryRequestDTO request) {
-        log.debug("Domain: Creating inventory record");
-
         Pharmacy pharmacy = validateAndFetchPharmacy(request.getPharmacyId());
         Drug drug = validateAndFetchDrug(request.getDrugId());
 
@@ -52,12 +50,10 @@ public class InventoryDomain {
 
         validator.validateForCreation(inventory);
 
-        log.info("Domain: Inventory validation passed, saving to database");
         return inventoryRepository.save(inventory);
     }
 
     public Inventory update(Long id, InventoryRequestDTO request) {
-        log.debug("Domain: Updating inventory with id: {}", id);
 
         Inventory existing = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory not found: " + id));
@@ -82,8 +78,15 @@ public class InventoryDomain {
 
         validator.validateForUpdate(existing);
 
-        log.info("Domain: Inventory update validation passed, saving to database");
         return inventoryRepository.save(existing);
+    }
+
+    public List<Inventory> getByPharmacy(Long pharmacyId) {
+        return inventoryRepository.findByPharmacy_PharmacyId(pharmacyId);
+    }
+
+    public List<Inventory> getByDrug(Long drugId) {
+        return inventoryRepository.findByDrug_DrugId(drugId);
     }
 
     public Inventory getById(Long id) {
@@ -92,13 +95,10 @@ public class InventoryDomain {
     }
 
     public void delete(Long id) {
-        log.debug("Domain: Deleting inventory with id: {}", id);
-
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inventory not found: " + id));
 
         inventoryRepository.deleteById(id);
-        log.info("Domain: Inventory deleted successfully");
     }
 
     public void adjustStock(Long inventoryId, Integer quantityChange) {
@@ -112,8 +112,10 @@ public class InventoryDomain {
         inventory.setQuantityInStock(newQuantity);
         validator.validateForUpdate(inventory);
         inventoryRepository.save(inventory);
+    }
 
-        log.info("Domain: Stock adjusted for inventory {} by {}", inventoryId, quantityChange);
+    public List<Inventory> getAll() {
+        return inventoryRepository.findAll();
     }
 
     private Pharmacy validateAndFetchPharmacy(Long pharmacyId) {

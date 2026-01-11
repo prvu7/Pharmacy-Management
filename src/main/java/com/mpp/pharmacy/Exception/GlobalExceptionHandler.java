@@ -85,6 +85,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(e.getMessage());
     }
 
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<?> handleDuplicateResourceException(DuplicateResourceException e, WebRequest request) {
+        logger.warn(LogType.DUPLICATE_RESOURCE_ERROR, "Duplicate resource: " + e.getMessage());
+        return ResponseEntity.status(409).body(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleUnexpectedException(Exception e, WebRequest request) {
         logger.error(LogType.UNEXPECTED_ERROR, "An unexpected error occurred", e);
@@ -102,4 +108,5 @@ public class GlobalExceptionHandler {
         logger.error(LogType.UNEXPECTED_ERROR, "Null pointer exception occurred", e);
         return ResponseEntity.status(500).body("A null pointer exception occurred: " + e.getMessage());
     }
+
 }
