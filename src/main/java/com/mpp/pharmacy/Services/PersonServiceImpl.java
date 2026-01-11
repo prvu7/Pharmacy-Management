@@ -28,7 +28,13 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonDTO create(PersonRequestDTO request) {
-        
+        if (request == null) {
+            throw new IllegalArgumentException("Request data cannot be null");
+        }
+
+        Person person = domain.create(request);
+
+        return mapper.toDTO(person);
     }
 
     @Override
