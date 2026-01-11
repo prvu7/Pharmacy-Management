@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import com.mpp.pharmacy.Domain.InventoryDomain;
 
 import java.util.List;
 
@@ -25,81 +26,81 @@ import java.util.List;
 @Slf4j
 public class InventoryServiceImpl implements InventoryService {
 
-    private final InventoryRepository inventoryRepository;
-    private final PharmacyRepository pharmacyRepository;
-    private final DrugRepository drugRepository;
+    private final InventoryDomain domain;
     private final InventoryMapper mapper;
-    private final CustomLogger logger = CustomLogger.getInstance();
 
     @Override
     public InventoryDTO create(InventoryRequestDTO request) {
-        Pharmacy pharmacy = pharmacyRepository.findById(request.getPharmacyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found"));
+        if (request == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
 
-        Drug drug = drugRepository.findById(request.getDrugId())
-                .orElseThrow(() -> new ResourceNotFoundException("Drug not found"));
+        Inventory inventory = domain.create(request);
 
-        Inventory inventory = mapper.fromRequest(request);
-        inventory.setPharmacy(pharmacy);
-        inventory.setDrug(drug);
-
-        return mapper.toDTO(inventoryRepository.save(inventory));
+        return mapper.toDTO(inventory);
     }
 
     @Override
     public InventoryDTO getById(Long id) {
-        Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Inventory not found"));
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+
+        Inventory inventory = domain.getById(id);
+
         return mapper.toDTO(inventory);
     }
 
     @Override
     public List<InventoryDTO> getAll() {
-        return inventoryRepository.findAll().stream()
+        return domain.getAll()
+                .stream()
                 .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
     public List<InventoryDTO> getByPharmacy(Long pharmacyId) {
-        return inventoryRepository.findByPharmacy_PharmacyId(pharmacyId)
-                .stream()
+        if (pharmacyId == null) {
+            throw new IllegalArgumentException("Pharmacy ID cannot be null");
+        }
+
+        return domain.getByPharmacy(pharmacyId).stream()
                 .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
     public List<InventoryDTO> getByDrug(Long drugId) {
-        return inventoryRepository.findByDrug_DrugId(drugId)
-                .stream()
+        if (drugId == null) {
+            throw new IllegalArgumentException("Drug ID cannot be null");
+        }
+
+        return domain.getByDrug(drugId).stream()
                 .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
     public InventoryDTO update(Long id, InventoryRequestDTO request) {
-        Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Inventory not found"));
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("Request cannot be null");
+        }
 
-        Pharmacy pharmacy = pharmacyRepository.findById(request.getPharmacyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found"));
+        Inventory updatedInventory = domain.update(id, request);
 
-        Drug drug = drugRepository.findById(request.getDrugId())
-                .orElseThrow(() -> new ResourceNotFoundException("Drug not found"));
-
-        inventory.setPharmacy(pharmacy);
-        inventory.setDrug(drug);
-        inventory.setQuantityInStock(request.getQuantityInStock());
-        inventory.setExpiryDate(request.getExpiryDate());
-
-        return mapper.toDTO(inventoryRepository.save(inventory));
+        return mapper.toDTO(updatedInventory);
     }
 
     @Override
     public void delete(Long id) {
-        if (!inventoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Inventory not found");
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
         }
-        inventoryRepository.deleteById(id);
+
+        domain.delete(id);
     }
 }
