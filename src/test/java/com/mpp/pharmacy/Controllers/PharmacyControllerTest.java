@@ -42,14 +42,14 @@ public class PharmacyControllerTest {
     @Test
     void createPharmacy_ShouldCreateNewPharmacy() throws Exception {
         PharmacyRequestDTO request = PharmacyRequestDTO.builder()
-                .name("Test Pharmacy")
+                .name("HealthPlus Pharmacy")
                 .address("123 Main Street, City")
                 .phone("+1234567890")
                 .build();
 
         PharmacyDTO createdPharmacy = PharmacyDTO.builder()
                 .pharmacyId(1L)
-                .name("Test Pharmacy")
+                .name("HealthPlus Pharmacy")
                 .address("123 Main Street, City")
                 .phone("+1234567890")
                 .build();
@@ -63,7 +63,7 @@ public class PharmacyControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.pharmacyId").value(1))
                 .andExpect(jsonPath("$.name").value("HealthPlus Pharmacy"))
-                .andExpect(jsonPath("$.address").value("123 Main Street, Downtown, City"))
+                .andExpect(jsonPath("$.address").value("123 Main Street, City"))
                 .andExpect(jsonPath("$.phone").value("+1234567890"));
     }
 
@@ -117,8 +117,8 @@ public class PharmacyControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.size()").value(3))
                 .andExpect(jsonPath("$[0].pharmacyId").value(1))
-                .andExpect(jsonPath("$[0].name").value("HealthPlus Pharmacy"))
-                .andExpect(jsonPath("$[0].address").value("123 Main Street, Downtown, City"))
+                .andExpect(jsonPath("$[0].name").value("Pharmacy One"))
+                .andExpect(jsonPath("$[0].address").value("123 Main Street, City"))
                 .andExpect(jsonPath("$[1].pharmacyId").value(2))
                 .andExpect(jsonPath("$[1].name").value("CareWell Pharmacy"))
                 .andExpect(jsonPath("$[1].phone").value("+9876543210"))

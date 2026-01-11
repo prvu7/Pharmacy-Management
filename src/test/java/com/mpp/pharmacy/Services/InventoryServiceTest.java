@@ -5,10 +5,10 @@ import com.mpp.pharmacy.Entity.Drug;
 import com.mpp.pharmacy.Entity.Inventory;
 import com.mpp.pharmacy.Entity.Pharmacy;
 import com.mpp.pharmacy.Mapper.InventoryMapper;
-import com.mpp.pharmacy.Repository.DrugRepository;
-import com.mpp.pharmacy.Repository.InventoryRepository;
-import com.mpp.pharmacy.Repository.PharmacyRepository;
 import com.mpp.pharmacy.RequestDTO.InventoryRequestDTO;
+import com.mpp.pharmacy.Domain.InventoryDomain;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,13 +26,7 @@ import static org.mockito.Mockito.*;
 public class InventoryServiceTest {
 
     @Mock
-    private InventoryRepository inventoryRepository;
-
-    @Mock
-    private PharmacyRepository pharmacyRepository;
-
-    @Mock
-    private DrugRepository drugRepository;
+    private InventoryDomain inventoryDomain;
 
     @Mock
     private InventoryMapper mapper;
@@ -41,54 +34,53 @@ public class InventoryServiceTest {
     @InjectMocks
     private InventoryServiceImpl inventoryService;
 
-    @Test
-    void create_ShouldReturnCreatedInventory() {
-        // Arrange
-        InventoryRequestDTO request = InventoryRequestDTO.builder()
-                .pharmacyId(1L)
-                .drugId(2L)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
-                .build();
+    private InventoryRequestDTO request;
+    private Inventory inventory;
+    private InventoryDTO inventoryDTO;
+    private Pharmacy pharmacy;
+    private Drug drug;
 
-        Pharmacy pharmacy = Pharmacy.builder()
+    @BeforeEach
+    void setUp() {
+        pharmacy = Pharmacy.builder()
                 .pharmacyId(1L)
                 .name("Central Pharmacy")
                 .build();
 
-        Drug drug = Drug.builder()
+        drug = Drug.builder()
                 .drugId(2L)
                 .drugName("Aspirin")
                 .build();
 
-        Inventory inventory = Inventory.builder()
-                .pharmacy(pharmacy)
-                .drug(drug)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
-                .build();
-
-        Inventory savedInventory = Inventory.builder()
-                .inventoryId(1L)
-                .pharmacy(pharmacy)
-                .drug(drug)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
-                .build();
-
-        InventoryDTO expectedDTO = InventoryDTO.builder()
-                .inventoryId(1L)
+        request = InventoryRequestDTO.builder()
                 .pharmacyId(1L)
                 .drugId(2L)
                 .quantityInStock(100)
                 .expiryDate(LocalDate.of(2026, 12, 31))
                 .build();
 
-        when(pharmacyRepository.findById(1L)).thenReturn(Optional.of(pharmacy));
-        when(drugRepository.findById(2L)).thenReturn(Optional.of(drug));
-        when(mapper.fromRequest(any(InventoryRequestDTO.class))).thenReturn(inventory);
-        when(inventoryRepository.save(any(Inventory.class))).thenReturn(savedInventory);
-        when(mapper.toDTO(any(Inventory.class))).thenReturn(expectedDTO);
+        inventory = Inventory.builder()
+                .inventoryId(1L)
+                .pharmacy(pharmacy)
+                .drug(drug)
+                .quantityInStock(100)
+                .expiryDate(LocalDate.of(2026, 12, 31))
+                .build();
+
+        inventoryDTO = InventoryDTO.builder()
+                .inventoryId(1L)
+                .pharmacyId(1L)
+                .drugId(2L)
+                .quantityInStock(100)
+                .expiryDate(LocalDate.of(2026, 12, 31))
+                .build();
+    }
+
+    @Test
+    void create_ShouldReturnCreatedInventory() {
+        // Arrange
+        when(inventoryDomain.create(request)).thenReturn(inventory);
+        when(mapper.toDTO(inventory)).thenReturn(inventoryDTO);
 
         // Act
         InventoryDTO result = inventoryService.create(request);
@@ -100,41 +92,28 @@ public class InventoryServiceTest {
         assertEquals(2L, result.getDrugId());
         assertEquals(100, result.getQuantityInStock());
         assertEquals(LocalDate.of(2026, 12, 31), result.getExpiryDate());
+        verify(inventoryDomain, times(1)).create(request);
+        verify(mapper, times(1)).toDTO(inventory);
+    }
+
+    @Test
+    void create_WithNullRequest_ShouldThrowException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.create(null)
+        );
+
+        assertEquals("Request cannot be null", exception.getMessage());
+        verify(inventoryDomain, never()).create(any());
     }
 
     @Test
     void getById_ShouldReturnInventory() {
         // Arrange
         Long inventoryId = 1L;
-
-        Pharmacy pharmacy = Pharmacy.builder()
-                .pharmacyId(1L)
-                .name("Central Pharmacy")
-                .build();
-
-        Drug drug = Drug.builder()
-                .drugId(2L)
-                .drugName("Aspirin")
-                .build();
-
-        Inventory inventory = Inventory.builder()
-                .inventoryId(inventoryId)
-                .pharmacy(pharmacy)
-                .drug(drug)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
-                .build();
-
-        InventoryDTO expectedDTO = InventoryDTO.builder()
-                .inventoryId(inventoryId)
-                .pharmacyId(1L)
-                .drugId(2L)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
-                .build();
-
-        when(inventoryRepository.findById(inventoryId)).thenReturn(Optional.of(inventory));
-        when(mapper.toDTO(any(Inventory.class))).thenReturn(expectedDTO);
+        when(inventoryDomain.getById(inventoryId)).thenReturn(inventory);
+        when(mapper.toDTO(inventory)).thenReturn(inventoryDTO);
 
         // Act
         InventoryDTO result = inventoryService.getById(inventoryId);
@@ -145,60 +124,43 @@ public class InventoryServiceTest {
         assertEquals(1L, result.getPharmacyId());
         assertEquals(2L, result.getDrugId());
         assertEquals(100, result.getQuantityInStock());
+        verify(inventoryDomain, times(1)).getById(inventoryId);
+        verify(mapper, times(1)).toDTO(inventory);
+    }
+
+    @Test
+    void getById_WithNullId_ShouldThrowException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.getById(null)
+        );
+
+        assertEquals("ID cannot be null", exception.getMessage());
+        verify(inventoryDomain, never()).getById(any());
     }
 
     @Test
     void getAll_ShouldReturnAllInventories() {
         // Arrange
-        Pharmacy pharmacy = Pharmacy.builder()
-                .pharmacyId(1L)
-                .name("Central Pharmacy")
-                .build();
-
-        Drug drug1 = Drug.builder()
-                .drugId(2L)
-                .drugName("Aspirin")
-                .build();
-
-        Drug drug2 = Drug.builder()
-                .drugId(3L)
-                .drugName("Ibuprofen")
-                .build();
-
-        Inventory inventory1 = Inventory.builder()
-                .inventoryId(1L)
-                .pharmacy(pharmacy)
-                .drug(drug1)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
-                .build();
-
         Inventory inventory2 = Inventory.builder()
                 .inventoryId(2L)
                 .pharmacy(pharmacy)
-                .drug(drug2)
+                .drug(drug)
                 .quantityInStock(50)
                 .expiryDate(LocalDate.of(2026, 11, 30))
-                .build();
-
-        InventoryDTO dto1 = InventoryDTO.builder()
-                .inventoryId(1L)
-                .pharmacyId(1L)
-                .drugId(2L)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
                 .build();
 
         InventoryDTO dto2 = InventoryDTO.builder()
                 .inventoryId(2L)
                 .pharmacyId(1L)
-                .drugId(3L)
+                .drugId(2L)
                 .quantityInStock(50)
                 .expiryDate(LocalDate.of(2026, 11, 30))
                 .build();
 
-        when(inventoryRepository.findAll()).thenReturn(List.of(inventory1, inventory2));
-        when(mapper.toDTO(inventory1)).thenReturn(dto1);
+        when(inventoryDomain.getAll()).thenReturn(List.of(inventory, inventory2));
+        when(mapper.toDTO(inventory)).thenReturn(inventoryDTO);
         when(mapper.toDTO(inventory2)).thenReturn(dto2);
 
         // Act
@@ -209,6 +171,8 @@ public class InventoryServiceTest {
         assertEquals(2, result.size());
         assertEquals(1L, result.get(0).getInventoryId());
         assertEquals(2L, result.get(1).getInventoryId());
+        verify(inventoryDomain, times(1)).getAll();
+        verify(mapper, times(2)).toDTO(any(Inventory.class));
     }
 
     @Test
@@ -216,55 +180,24 @@ public class InventoryServiceTest {
         // Arrange
         Long pharmacyId = 1L;
 
-        Pharmacy pharmacy = Pharmacy.builder()
-                .pharmacyId(pharmacyId)
-                .name("Central Pharmacy")
-                .build();
-
-        Drug drug1 = Drug.builder()
-                .drugId(2L)
-                .drugName("Aspirin")
-                .build();
-
-        Drug drug2 = Drug.builder()
-                .drugId(3L)
-                .drugName("Ibuprofen")
-                .build();
-
-        Inventory inventory1 = Inventory.builder()
-                .inventoryId(1L)
-                .pharmacy(pharmacy)
-                .drug(drug1)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
-                .build();
-
         Inventory inventory2 = Inventory.builder()
                 .inventoryId(2L)
                 .pharmacy(pharmacy)
-                .drug(drug2)
+                .drug(drug)
                 .quantityInStock(50)
                 .expiryDate(LocalDate.of(2026, 11, 30))
-                .build();
-
-        InventoryDTO dto1 = InventoryDTO.builder()
-                .inventoryId(1L)
-                .pharmacyId(pharmacyId)
-                .drugId(2L)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
                 .build();
 
         InventoryDTO dto2 = InventoryDTO.builder()
                 .inventoryId(2L)
                 .pharmacyId(pharmacyId)
-                .drugId(3L)
+                .drugId(2L)
                 .quantityInStock(50)
                 .expiryDate(LocalDate.of(2026, 11, 30))
                 .build();
 
-        when(inventoryRepository.findByPharmacy_PharmacyId(pharmacyId)).thenReturn(List.of(inventory1, inventory2));
-        when(mapper.toDTO(inventory1)).thenReturn(dto1);
+        when(inventoryDomain.getByPharmacy(pharmacyId)).thenReturn(List.of(inventory, inventory2));
+        when(mapper.toDTO(inventory)).thenReturn(inventoryDTO);
         when(mapper.toDTO(inventory2)).thenReturn(dto2);
 
         // Act
@@ -275,6 +208,20 @@ public class InventoryServiceTest {
         assertEquals(2, result.size());
         assertEquals(pharmacyId, result.get(0).getPharmacyId());
         assertEquals(pharmacyId, result.get(1).getPharmacyId());
+        verify(inventoryDomain, times(1)).getByPharmacy(pharmacyId);
+        verify(mapper, times(2)).toDTO(any(Inventory.class));
+    }
+
+    @Test
+    void getByPharmacy_WithNullId_ShouldThrowException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.getByPharmacy(null)
+        );
+
+        assertEquals("Pharmacy ID cannot be null", exception.getMessage());
+        verify(inventoryDomain, never()).getByPharmacy(any());
     }
 
     @Test
@@ -282,27 +229,9 @@ public class InventoryServiceTest {
         // Arrange
         Long drugId = 2L;
 
-        Pharmacy pharmacy1 = Pharmacy.builder()
-                .pharmacyId(1L)
-                .name("Central Pharmacy")
-                .build();
-
         Pharmacy pharmacy2 = Pharmacy.builder()
                 .pharmacyId(2L)
                 .name("North Pharmacy")
-                .build();
-
-        Drug drug = Drug.builder()
-                .drugId(drugId)
-                .drugName("Aspirin")
-                .build();
-
-        Inventory inventory1 = Inventory.builder()
-                .inventoryId(1L)
-                .pharmacy(pharmacy1)
-                .drug(drug)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
                 .build();
 
         Inventory inventory2 = Inventory.builder()
@@ -313,14 +242,6 @@ public class InventoryServiceTest {
                 .expiryDate(LocalDate.of(2026, 11, 30))
                 .build();
 
-        InventoryDTO dto1 = InventoryDTO.builder()
-                .inventoryId(1L)
-                .pharmacyId(1L)
-                .drugId(drugId)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
-                .build();
-
         InventoryDTO dto2 = InventoryDTO.builder()
                 .inventoryId(2L)
                 .pharmacyId(2L)
@@ -329,8 +250,8 @@ public class InventoryServiceTest {
                 .expiryDate(LocalDate.of(2026, 11, 30))
                 .build();
 
-        when(inventoryRepository.findByDrug_DrugId(drugId)).thenReturn(List.of(inventory1, inventory2));
-        when(mapper.toDTO(inventory1)).thenReturn(dto1);
+        when(inventoryDomain.getByDrug(drugId)).thenReturn(List.of(inventory, inventory2));
+        when(mapper.toDTO(inventory)).thenReturn(inventoryDTO);
         when(mapper.toDTO(inventory2)).thenReturn(dto2);
 
         // Act
@@ -341,6 +262,20 @@ public class InventoryServiceTest {
         assertEquals(2, result.size());
         assertEquals(drugId, result.get(0).getDrugId());
         assertEquals(drugId, result.get(1).getDrugId());
+        verify(inventoryDomain, times(1)).getByDrug(drugId);
+        verify(mapper, times(2)).toDTO(any(Inventory.class));
+    }
+
+    @Test
+    void getByDrug_WithNullId_ShouldThrowException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.getByDrug(null)
+        );
+
+        assertEquals("Drug ID cannot be null", exception.getMessage());
+        verify(inventoryDomain, never()).getByDrug(any());
     }
 
     @Test
@@ -348,29 +283,11 @@ public class InventoryServiceTest {
         // Arrange
         Long inventoryId = 1L;
 
-        InventoryRequestDTO request = InventoryRequestDTO.builder()
+        InventoryRequestDTO updateRequest = InventoryRequestDTO.builder()
                 .pharmacyId(1L)
                 .drugId(2L)
                 .quantityInStock(150)
                 .expiryDate(LocalDate.of(2027, 6, 30))
-                .build();
-
-        Pharmacy pharmacy = Pharmacy.builder()
-                .pharmacyId(1L)
-                .name("Central Pharmacy")
-                .build();
-
-        Drug drug = Drug.builder()
-                .drugId(2L)
-                .drugName("Aspirin")
-                .build();
-
-        Inventory existingInventory = Inventory.builder()
-                .inventoryId(inventoryId)
-                .pharmacy(pharmacy)
-                .drug(drug)
-                .quantityInStock(100)
-                .expiryDate(LocalDate.of(2026, 12, 31))
                 .build();
 
         Inventory updatedInventory = Inventory.builder()
@@ -381,7 +298,7 @@ public class InventoryServiceTest {
                 .expiryDate(LocalDate.of(2027, 6, 30))
                 .build();
 
-        InventoryDTO expectedDTO = InventoryDTO.builder()
+        InventoryDTO updatedDTO = InventoryDTO.builder()
                 .inventoryId(inventoryId)
                 .pharmacyId(1L)
                 .drugId(2L)
@@ -389,35 +306,70 @@ public class InventoryServiceTest {
                 .expiryDate(LocalDate.of(2027, 6, 30))
                 .build();
 
-        when(inventoryRepository.findById(inventoryId)).thenReturn(Optional.of(existingInventory));
-        when(pharmacyRepository.findById(1L)).thenReturn(Optional.of(pharmacy));
-        when(drugRepository.findById(2L)).thenReturn(Optional.of(drug));
-        when(inventoryRepository.save(any(Inventory.class))).thenReturn(updatedInventory);
-        when(mapper.toDTO(any(Inventory.class))).thenReturn(expectedDTO);
+        when(inventoryDomain.update(inventoryId, updateRequest)).thenReturn(updatedInventory);
+        when(mapper.toDTO(updatedInventory)).thenReturn(updatedDTO);
 
         // Act
-        InventoryDTO result = inventoryService.update(inventoryId, request);
+        InventoryDTO result = inventoryService.update(inventoryId, updateRequest);
 
         // Assert
         assertNotNull(result);
         assertEquals(inventoryId, result.getInventoryId());
         assertEquals(150, result.getQuantityInStock());
         assertEquals(LocalDate.of(2027, 6, 30), result.getExpiryDate());
+        verify(inventoryDomain, times(1)).update(inventoryId, updateRequest);
+        verify(mapper, times(1)).toDTO(updatedInventory);
+    }
+
+    @Test
+    void update_WithNullId_ShouldThrowException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.update(null, request)
+        );
+
+        assertEquals("ID cannot be null", exception.getMessage());
+        verify(inventoryDomain, never()).update(any(), any());
+    }
+
+    @Test
+    void update_WithNullRequest_ShouldThrowException() {
+        // Arrange
+        Long inventoryId = 1L;
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.update(inventoryId, null)
+        );
+
+        assertEquals("Request cannot be null", exception.getMessage());
+        verify(inventoryDomain, never()).update(any(), any());
     }
 
     @Test
     void delete_ShouldDeleteInventory() {
         // Arrange
         Long inventoryId = 1L;
-
-        when(inventoryRepository.existsById(inventoryId)).thenReturn(true);
-        doNothing().when(inventoryRepository).deleteById(inventoryId);
+        doNothing().when(inventoryDomain).delete(inventoryId);
 
         // Act
         inventoryService.delete(inventoryId);
 
         // Assert
-        verify(inventoryRepository, times(1)).existsById(inventoryId);
-        verify(inventoryRepository, times(1)).deleteById(inventoryId);
+        verify(inventoryDomain, times(1)).delete(inventoryId);
+    }
+
+    @Test
+    void delete_WithNullId_ShouldThrowException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> inventoryService.delete(null)
+        );
+
+        assertEquals("ID cannot be null", exception.getMessage());
+        verify(inventoryDomain, never()).delete(any());
     }
 }
