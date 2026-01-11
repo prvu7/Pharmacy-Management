@@ -1,155 +1,165 @@
-# Pharmacy-Management
-Layered, object-oriented Java application that manages pharmacy operations, including patients, doctors, treatments, prescriptions, pharmacies, and drug inventory. The project will demonstrate data validation, exception handling, logging, unit testing, database integration, and external API usage in accordance with defined business rules.
+# Pharmacy Management System (REST API)
 
-# Objecive
-1. Demonstrate object-oriented design (POO) using Java classes, inheritance, and encapsulation.
+A layered, object-oriented RESTful API built with **Spring Boot 3** and **Java 21** for managing pharmacy operations. This application handles patients, doctors, treatments, prescriptions, and drug inventory validation, complying with complex business rules.
 
-2. Ensure data validation and business logic enforcement (e.g., prescription rules, inventory limits).
-
-3. Implement logging and exception handling for reliability.
-
-4. Cover unit testing for at least 100 scenarios, including mock testing.
-
-5. Implement layered architecture (Data Access Layer, Business Logic Layer, Presentation Layer - CLI).
-
-6. Connect to the PostgreSQL database, using stored procedures for key operations.
-
-7. Integrate at least one external API (e.g., a drug information API for checking drug interactions or expiration dates).
-
-# Entities & Main Features
-1. Person Management -> Add/update/delete patients, doctors, pharmacists
-                     -> Validate mandatory fields: name, role, sex, date of birth, email
-                     -> Example validation: Name > 4 characters; email must be valid format.
-
-2. Treatment Management -> Assign treatments to patients with doctors
-                        -> Assign treatments to patients with doctors
-                        -> Assign treatments to patients with doctors
-                        -> Ensure start and end dates are valid (start < end)
-                        -> Ensure start and end dates are valid (start < end)
-                        -> Business rule: One patient cannot have overlapping treatments for the same condition
-
-3. Drug Management -> Add/update/delete drugs and manage inventory across pharmacies
-                   -> Validate drug names, dosages, prices (>0), and stock quantity
-
-4. Prescription Management -> Create prescriptions linking patients, doctors, treatments, and drugs
-                           -> Validate: drugs in prescription must exist in inventory; quantity <= stock
-                        
-
-5. Inventory & Pharmacy Management -> Track stock levels, expiry dates
-                                   -> Business rules: Trigger alerts if stock < minimum threshold
-
-6. Purchase Management -> Record patient purchases (with/without prescriptions)
-                       -> Validate total amount and prescription adherence
-                       -> Logging of each purchase transaction.
-
-# Workflow
-1. **Login/Initialization**
-   - CLI application starts
-   - Verify user role (doctor, pharmacist, admin)
-   - Connect to PostgreSQL database
-
-2. **Main Menu**
-   - Manage Persons
-   - Manage Drugs & Inventory
-   - Manage Treatments
-   - Manage Prescriptions
-   - Manage Purchases
-   - Reporting & Logging
-
-3. **Operations**
-   - Input validation
-   - Exception handling
-   - Logging
-   - Database interaction via DAO layer
-   - External API calls for drug checks
-
-4. **Unit Testing**
-   - At least 100 test methods covering:
-     - Data validation
-     - Stock checks
-     - Prescription rules
-     - Purchase validation
-     - Mocking API responses
-
-5. **Reporting**
-   - Prescriptions per doctor/patient
-   - Low inventory alerts
-   - Purchases exceeding budget or violating rules
+It features secure access via API Keys, integration with the **OpenFDA API** for drug verification, and comprehensive API documentation using **Swagger/OpenAPI**.
 
 ---
 
-# Architecture
+## Key Features
 
-- **Presentation Layer** (CLI)
-  - Handles user interaction
-  - Calls business logic layer methods
+### 1. **Core Business Operations**
+- **Person Management**: Manage Patients, Doctors, and Pharmacists with role-based validation.
+- **Drug & Inventory**: centralized drug database with inventory tracking per pharmacy location.
+- **Prescriptions**: Link patients, doctors, and treatments. Automated validation ensures prescribed drugs exist in inventory.
+- **Purchases**: Record transactions, validate stock availability, and calculate totals.
+- **Treatments**: Manage long-term treatment plans and prevent overlapping conflicts.
 
-- **Business Logic Layer**
-  - Implements rules and validations
-  - Handles exceptions and logging
-  - Calls DAO layer for database access
-
-- **Data Access Layer (DAO)**
-  - Interacts with PostgreSQL database
-  - Executes SQL queries and stored procedures
-
----
-
-# Data Validation Examples
-- Name length > 4 characters
-- Mandatory fields completion
-- Drug quantity ≤ inventory stock
-- Prescription start/end date validation
-- Role-based action enforcement (e.g., only doctors can create prescriptions)
+### 2. **Technical Highlights**
+- **External API Integration**: Real-time drug validation using the **OpenFDA API** (`api.fda.gov`).
+- **Security**: Custom **API Key Authentication** filter securing all endpoints.
+- **Documentation**: Interactive API documentation available via **Swagger UI**.
+- **Data Mapping**: Efficient DTO-to-Entity mapping using **MapStruct**.
+- **Database**: Relational design with **PostgreSQL**, utilizing stored procedures for complex logic.
 
 ---
 
-# Logging & Exception Handling
-- Logging: `java.util.logging` or `log4j`
-  - Logs creation, updates, deletions, purchases, and prescriptions
-- Exceptions:
-  - `InvalidDataException`
-  - `StockException`
-  - `PrescriptionException`
-  - Database connection failures
+## Technology Stack
+
+- **Language:** Java 21
+- **Framework:** Spring Boot 3.5.7
+- **Database:** PostgreSQL 21
+- **ORM:** Spring Data JPA (Hibernate)
+- **Security:** Spring Security (Custom API Key Filter)
+- **Utilities:** Lombok, MapStruct
+- **Testing:** JUnit 5, Mockito
+- **API Documentation:** SpringDoc OpenAPI (Swagger UI)
 
 ---
 
-# Unit Testing
-- Framework: **JUnit 5**
-- Includes **mock testing** using **Mockito**
-- Covers validation, stock, prescription rules, and API integration
+## Architecture
+
+The project follows a **Multi-Layered Architecture** designed to separate concerns, improve maintainability, and isolate business rules.
+
+### 1. Presentation Layer (`Controllers`)
+- **Role**: Handles incoming HTTP requests and creates HTTP responses.
+- **Responsibility**: Validates input formats, invokes the Service layer, and returns DTOs to the client.
+- **Path**: `com.mpp.pharmacy.Controllers`
+
+### 2. Service Layer (`Services`)
+- **Role**: Acts as the transaction boundary and orchestrator.
+- **Responsibility**: 
+  - Handles DTO $\leftrightarrow$ Entity conversion using Mappers.
+  - Manages database transactions (`@Transactional`).
+  - Calls the Domain layer for core logic.
+- **Path**: `com.mpp.pharmacy.Services`
+
+### 3. Domain Layer (`Domain`)
+- **Role**: Encapsulates the core business logic and rules.
+- **Responsibility**: 
+  - Validates business rules (e.g., checking for overlapping treatments).
+  - Orchestrates calls to `Validators` and `Repositories`.
+  - Ensures data integrity before persistence.
+- **Path**: `com.mpp.pharmacy.Domain`
+
+### 4. Validation Layer (`Validators`)
+- **Role**: specialized logic for validating entities.
+- **Responsibility**: Enforces specific constraints (e.g., "End date cannot be before Start date", "Doctor role required").
+- **Path**: `com.mpp.pharmacy.Validators`
+
+### 5. Mapping Layer (`Mapper`)
+- **Role**: Object-to-Object mapping.
+- **Responsibility**: Uses **MapStruct** to cleanly convert between internal Entities and public DTOs, decoupling the database schema from the API contract.
+- **Path**: `com.mpp.pharmacy.Mapper`
+
+### 6. Data Access Layer (`Repository`)
+- **Role**: Database interaction.
+- **Responsibility**: Extends `JpaRepository` to perform CRUD operations and execute custom SQL queries.
+- **Path**: `com.mpp.pharmacy.Repository`
+
+### 7. External Layer (`External`)
+- **Role**: Third-party integration.
+- **Responsibility**: Consumes external services like the **OpenFDA API** to verify drug data.
+- **Path**: `com.mpp.pharmacy.External`
 
 ---
 
-# External API Integration
-- Optional integration with a **drug information API**:
-  - Check for drug interactions
-  - Verify expiry dates
-  - Suggest dosage guidelines
-- API responses are mocked in unit tests
+## Setup & Configuration
 
----
+### 1. Prerequisites
+- Java 21 SDK
+- Maven
+- PostgreSQL Database
 
-# Technologies Used
-- **Java 17+**
-- **PostgreSQL 17**
+### 2. Environment Variables
+The application requires the following environment variables to be set (or defined in a `.env` file):
 
----
+| Variable | Description |
+| :--- | :--- |
+| `DATABASE_URL` | JDBC URL (e.g., `jdbc:postgresql://localhost:5432/database_name`) |
+| `DATABASE_USERNAME` | PostgreSQL username |
+| `DATABASE_PASSWORD` | PostgreSQL password |
+| `fda-api-key` | Your OpenFDA API Key |
+| `api-key-name` | Name of the header for auth (e.g., `X-API-KEY`) |
+| `api-key-value` | The secret key value required to access the API |
 
-# Project Outcome
-A fully functional Pharmacy Management System that:
-- Demonstrates **layered OOP architecture**
-- Ensures **data integrity and business rule compliance**
-- Integrates with a **realistic PostgreSQL database**
-- Includes **robust logging, exception handling, and unit testing**
-- Consumes **external APIs** for drug validation
+### 3. Installation
+```bash
+# Clone the repository
+git clone <repository-url>
 
-  # Database
-  <img width="1588" height="1818" alt="Untitled" src="https://github.com/user-attachments/assets/6f82829a-2f47-4942-9f8c-4a29a718a2a8" />
+# Navigate to project directory
+cd Pharmacy-Management
 
+# Build the project
+mvn clean install
 
+# Run the application
+mvn spring-boot:run
 
+```
 
+### 4. Database Initialization
+Execute the `db-init.sql` and `stored-procedures.sql`scripts in your PostgreSQL instance to create the schema and seed initial data.
 
+## API Documentation
+Once the application is running, you can access the interactive API documentation and test endpoints directly:
 
+- Swagger UI: http://localhost:8080/swagger-ui.html
+
+- OpenAPI Docs: http://localhost:8080/v3/api-docs
+
+    **Note:** You must authorize requests in Swagger by clicking the "Authorize" button and entering your configured api-key-value.
+
+## Testing
+
+The project includes over 100 unit tests covering:
+
+- Service layer business logic.
+
+- Controller endpoints (MockMvc).
+
+- External API mocking (OpenFDA).
+
+Run tests using Maven:
+
+``` bash
+mvn test 
+
+# for a clean build use
+mvn clean test 
+
+# also if you want more information use the `-X` argument
+mvn test -X
+```
+
+## Database Schema
+The database supports the following relationships:
+
+- **Inventory** links **Pharmacies** and **Drugs**.
+
+- **Prescriptions** link **Patients**, **Doctors**, and **Treatments**.
+
+- **Purchases** track sales history for reporting.
+
+<img width="1588" height="1818" alt="Database Schema" src="https://github.com/user-attachments/assets/6f82829a-2f47-4942-9f8c-4a29a718a2a8" />
