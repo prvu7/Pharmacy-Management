@@ -8,7 +8,7 @@ import com.mpp.pharmacy.RequestDTO.PersonRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.PersonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import com.mpp.pharmacy.Domain.PersonDomain;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 public class PersonServiceImpl implements PersonService {
 
-    private final PersonRepository repository;
+    private final PersonDomain domain;
     private final PersonMapper mapper;
 
     // =====================================================================
@@ -28,50 +28,49 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonDTO create(PersonRequestDTO request) {
-        Person person = mapper.toEntity(request);
-        Person saved = repository.save(person);
-        return mapper.toDTO(saved);
+        
     }
 
     @Override
     public PersonDTO getById(Long id) {
-        Person person = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found: " + id));
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
+
+        Person person = domain.getById(id);
+
         return mapper.toDTO(person);
     }
 
     @Override
     public List<PersonDTO> getAll() {
-        return repository.findAll()
-                .stream()
+        return domain.getAll().stream()
                 .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
     public PersonDTO update(Long id, PersonRequestDTO request) {
-        Person existing = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found: " + id));
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
 
-        existing.setFirstName(request.getFirstName());
-        existing.setLastName(request.getLastName());
-        existing.setSex(request.getSex());
-        existing.setDateOfBirth(request.getDateOfBirth());
-        existing.setPhone(request.getPhone());
-        existing.setEmail(request.getEmail());
-        existing.setAddress(request.getAddress());
-        existing.setRole(request.getRole());
+        if (request == null) {
+            throw new IllegalArgumentException("Request data cannot be null");
+        }
 
-        Person updated = repository.save(existing);
-        return mapper.toDTO(updated);
+        Person updatedPerson = domain.update(id, request);
+
+        return mapper.toDTO(updatedPerson);
     }
 
     @Override
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Person not found: " + id);
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null");
         }
-        repository.deleteById(id);
+
+        domain.delete(id);
     }
 }
 
