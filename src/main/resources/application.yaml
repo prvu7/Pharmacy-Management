@@ -18,6 +18,8 @@ logging:
     root: INFO
     com.example.pharmacy: DEBUG
 app:
+  fda:
+    api-key: ${fda-api-key}
   security:
     api-key-name: ${api-key-name}
     api-key-value: ${api-key-value}
