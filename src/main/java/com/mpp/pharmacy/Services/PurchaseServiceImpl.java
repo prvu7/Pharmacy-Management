@@ -21,7 +21,6 @@ import java.util.List;
 @Transactional
 public class PurchaseServiceImpl implements PurchaseService {
 
-    private final PurchaseRepository purchaseRepository;
     private final PurchaseMapper mapper;
     private final PurchaseDomain purchaseDomain;
 
@@ -48,7 +47,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Override
     @Transactional(readOnly = true)
     public List<PurchaseDTO> getAll() {
-        return purchaseRepository.findAll()
+        return purchaseDomain.getAll()
                 .stream()
                 .map(mapper::toDTO)
                 .toList();
@@ -61,7 +60,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new InvalidRequestException("Patient ID cannot be null");
         }
 
-        return purchaseRepository.findByPatient_PersonId(patientId)
+        return purchaseDomain.getByPatient(patientId)
                 .stream()
                 .map(mapper::toDTO)
                 .toList();
@@ -74,7 +73,7 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new InvalidRequestException("Pharmacy ID cannot be null");
         }
 
-        return purchaseRepository.findByPharmacy_PharmacyId(pharmacyId)
+        return purchaseDomain.getByPharmacy(pharmacyId)
                 .stream()
                 .map(mapper::toDTO)
                 .toList();

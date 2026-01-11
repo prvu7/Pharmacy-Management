@@ -21,7 +21,6 @@ import java.util.List;
 @Transactional
 public class TreatmentServiceImpl implements TreatmentService {
 
-    private final TreatmentRepository repository;
     private final TreatmentMapper mapper;
     private final TreatmentDomain treatmentDomain;
 
@@ -48,7 +47,7 @@ public class TreatmentServiceImpl implements TreatmentService {
     @Override
     @Transactional(readOnly = true)
     public List<TreatmentDTO> getAll() {
-        return repository.findAll().stream()
+        return treatmentDomain.getAll().stream()
                 .map(mapper::toDTO)
                 .toList();
     }

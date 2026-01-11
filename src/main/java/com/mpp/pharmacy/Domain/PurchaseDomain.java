@@ -15,6 +15,9 @@ import com.mpp.pharmacy.RequestDTO.PurchaseRequestDTO;
 import com.mpp.pharmacy.Validators.PurchaseValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,7 +32,6 @@ public class PurchaseDomain {
     private final PurchaseValidator validator;
 
     public Purchase create(PurchaseRequestDTO request) {
-        log.debug("Domain: Creating purchase");
 
         Pharmacy pharmacy = validateAndFetchPharmacy(request.getPharmacyId());
         Person patient = validateAndFetchPatient(request.getPatientId());
@@ -49,12 +51,10 @@ public class PurchaseDomain {
 
         validator.validateForCreation(purchase);
 
-        log.info("Domain: Purchase validation passed, saving to database");
         return purchaseRepository.save(purchase);
     }
 
     public Purchase update(Long id, PurchaseRequestDTO request) {
-        log.debug("Domain: Updating purchase with id: {}", id);
 
         Purchase existing = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase not found: " + id));
@@ -75,7 +75,6 @@ public class PurchaseDomain {
 
         validator.validateForUpdate(existing);
 
-        log.info("Domain: Purchase update validation passed, saving to database");
         return purchaseRepository.save(existing);
     }
 
@@ -85,13 +84,22 @@ public class PurchaseDomain {
     }
 
     public void delete(Long id) {
-        log.debug("Domain: Deleting purchase with id: {}", id);
-
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase not found: " + id));
 
         purchaseRepository.deleteById(id);
-        log.info("Domain: Purchase deleted successfully");
+    }
+
+    public List<Purchase> getByPatient(Long patientId) {
+        return purchaseRepository.findByPatient_PersonId(patientId);
+    }
+
+    public List<Purchase> getAll() {
+        return purchaseRepository.findAll();
+    }
+
+    public List<Purchase> getByPharmacy(Long pharmacyId) {
+        return purchaseRepository.findByPharmacy_PharmacyId(pharmacyId);
     }
 
     private Pharmacy validateAndFetchPharmacy(Long pharmacyId) {
@@ -102,6 +110,7 @@ public class PurchaseDomain {
         return pharmacyRepository.findById(pharmacyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found: " + pharmacyId));
     }
+
 
     private Person validateAndFetchPatient(Long patientId) {
         if (patientId == null) {

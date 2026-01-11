@@ -8,7 +8,7 @@ import com.mpp.pharmacy.RequestDTO.PharmacyRequestDTO;
 import com.mpp.pharmacy.ServiceInterface.PharmacyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import com.mpp.pharmacy.Domain.PharmacyDomain;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,46 +18,58 @@ import java.util.List;
 @Slf4j
 public class PharmacyServiceImpl implements PharmacyService {
 
-    private final PharmacyRepository repository;
+    private final PharmacyDomain domain;
     private final PharmacyMapper mapper;
 
     @Override
     public PharmacyDTO create(PharmacyRequestDTO request) {
-        Pharmacy pharmacy = mapper.fromRequest(request);
-        return mapper.toDTO(repository.save(pharmacy));
+        if (request == null) {
+            throw new IllegalArgumentException("Pharmacy request cannot be null");
+        }
+
+        Pharmacy pharmacy = domain.create(request);
+
+        return mapper.toDTO(pharmacy);
     }
 
     @Override
     public PharmacyDTO getById(Long id) {
-        Pharmacy pharmacy = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found: " + id));
+        if (id == null) {
+            throw new IllegalArgumentException("Pharmacy ID cannot be null");
+        }
+
+        Pharmacy pharmacy = domain.getById(id);
+
         return mapper.toDTO(pharmacy);
     }
 
     @Override
     public List<PharmacyDTO> getAll() {
-        return repository.findAll().stream()
+        return domain.getAll().stream()
                 .map(mapper::toDTO)
                 .toList();
     }
 
     @Override
     public PharmacyDTO update(Long id, PharmacyRequestDTO request) {
-        Pharmacy pharmacy = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found: " + id));
+        if (id == null) {
+            throw new IllegalArgumentException("Pharmacy ID cannot be null");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("Pharmacy request cannot be null");
+        }
 
-        pharmacy.setName(request.getName());
-        pharmacy.setAddress(request.getAddress());
-        pharmacy.setPhone(request.getPhone());
+        Pharmacy updatedPharmacy = domain.update(id, request);
 
-        return mapper.toDTO(repository.save(pharmacy));
+        return mapper.toDTO(updatedPharmacy);
     }
 
     @Override
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Pharmacy not found: " + id);
+        if (id == null) {
+            throw new IllegalArgumentException("Pharmacy ID cannot be null");
         }
-        repository.deleteById(id);
+
+        domain.delete(id);
     }
 }

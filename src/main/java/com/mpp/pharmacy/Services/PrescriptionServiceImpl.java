@@ -14,7 +14,7 @@ import com.mpp.pharmacy.ServiceInterface.PrescriptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+import com.mpp.pharmacy.Domain.PrescriptionDomain;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,79 +23,58 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PrescriptionServiceImpl implements PrescriptionService {
 
-    private final PrescriptionRepository repository;
+    private final PrescriptionDomain domain;
     private final PrescriptionMapper mapper;
-    private final PersonRepository personRepository;
-    private final TreatmentRepository treatmentRepository;
 
     @Override
     public PrescriptionDTO create(PrescriptionRequestDTO request) {
-        Person patient = personRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found: " + request.getPatientId()));
-
-        Person doctor = personRepository.findById(request.getDoctorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found: " + request.getDoctorId()));
-
-        Treatment treatment = null;
-        if (request.getTreatmentId() != null) {
-            treatment = treatmentRepository.findById(request.getTreatmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Treatment not found: " + request.getTreatmentId()));
+        if (request == null) {
+            throw new IllegalArgumentException("Prescription request cannot be null");
         }
 
-        Prescription prescription = mapper.toEntity(request);
-        prescription.setPatient(patient);
-        prescription.setDoctor(doctor);
-        prescription.setTreatment(treatment);
+        Prescription entity = domain.create(request);
 
-        Prescription saved = repository.save(prescription);
-        return mapper.toDTO(saved);
-    }
-
-    @Override
-    public PrescriptionDTO getById(Long id) {
-        Prescription entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Prescription not found: " + id));
         return mapper.toDTO(entity);
     }
 
     @Override
+    public PrescriptionDTO getById(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Prescription ID cannot be null");
+        }
+
+        Prescription response = domain.getById(id);
+
+        return mapper.toDTO(response);
+    }
+
+    @Override
     public List<PrescriptionDTO> getAll() {
-        return repository.findAll().stream()
+        return domain.getAll().stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public PrescriptionDTO update(Long id, PrescriptionRequestDTO request) {
-        Prescription existing = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Prescription not found: " + id));
-
-        Person patient = personRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found: " + request.getPatientId()));
-
-        Person doctor = personRepository.findById(request.getDoctorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found: " + request.getDoctorId()));
-
-        Treatment treatment = null;
-        if (request.getTreatmentId() != null) {
-            treatment = treatmentRepository.findById(request.getTreatmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Treatment not found: " + request.getTreatmentId()));
+        if (id == null) {
+            throw new IllegalArgumentException("Prescription ID cannot be null");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("Prescription request cannot be null");
         }
 
-        existing.setPatient(patient);
-        existing.setDoctor(doctor);
-        existing.setTreatment(treatment);
-        existing.setPrescriptionDate(request.getPrescriptionDate());
-        existing.setNotes(request.getNotes());
+        Prescription updatedEntity = domain.update(id, request);
 
-        return mapper.toDTO(repository.save(existing));
+        return mapper.toDTO(updatedEntity);
     }
 
     @Override
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Prescription not found: " + id);
+        if (id == null) {
+            throw new IllegalArgumentException("Prescription ID cannot be null");
         }
-        repository.deleteById(id);
+
+        domain.delete(id);
     }
 }

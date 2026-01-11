@@ -9,6 +9,7 @@ import com.mpp.pharmacy.Validators.PharmacyValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -19,8 +20,6 @@ public class PharmacyDomain {
     private final PharmacyValidator validator;
 
     public Pharmacy create(PharmacyRequestDTO request) {
-        log.debug("Domain: Creating pharmacy with name: {}", request.getName());
-
         // Create entity from request
         Pharmacy pharmacy = Pharmacy.builder()
                 .name(request.getName())
@@ -47,13 +46,10 @@ public class PharmacyDomain {
                     throw new DuplicateResourceException("Pharmacy at this address already exists: " + request.getAddress());
                 });
 
-        log.info("Domain: Pharmacy validation passed, saving to database");
         return repository.save(pharmacy);
     }
 
     public Pharmacy update(Long id, PharmacyRequestDTO request) {
-        log.debug("Domain: Updating pharmacy with id: {}", id);
-
         // Fetch existing pharmacy
         Pharmacy existing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found: " + id));
@@ -90,7 +86,6 @@ public class PharmacyDomain {
                     }
                 });
 
-        log.info("Domain: Pharmacy update validation passed, saving to database");
         return repository.save(existing);
     }
 
@@ -100,8 +95,6 @@ public class PharmacyDomain {
     }
 
     public void delete(Long id) {
-        log.debug("Domain: Deleting pharmacy with id: {}", id);
-
         Pharmacy pharmacy = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pharmacy not found: " + id));
 
@@ -114,7 +107,10 @@ public class PharmacyDomain {
         // }
 
         repository.deleteById(id);
-        log.info("Domain: Pharmacy deleted successfully");
+    }
+
+    public List<Pharmacy> getAll() {
+        return repository.findAll();
     }
 
     public Pharmacy findByAddress(String address) {

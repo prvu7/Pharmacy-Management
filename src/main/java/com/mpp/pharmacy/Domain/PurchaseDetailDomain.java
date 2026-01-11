@@ -1,5 +1,7 @@
 package com.mpp.pharmacy.Domain;
 
+import java.util.List;
+
 import com.mpp.pharmacy.Entity.Drug;
 import com.mpp.pharmacy.Entity.Purchase;
 import com.mpp.pharmacy.Entity.PurchaseDetailId;
@@ -12,8 +14,10 @@ import com.mpp.pharmacy.Repository.PurchaseDetailRepository;
 import com.mpp.pharmacy.Repository.PurchaseRepository;
 import com.mpp.pharmacy.RequestDTO.PurchaseDetailRequestDTO;
 import com.mpp.pharmacy.Validators.PurchaseDetailValidator;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,7 +31,6 @@ public class PurchaseDetailDomain {
     private final PurchaseDetailValidator validator;
 
     public Purchase_Detail create(PurchaseDetailRequestDTO request) {
-        log.debug("Domain: Creating purchase detail");
 
         Purchase purchase = validateAndFetchPurchase(request.getPurchaseId());
         Drug drug = validateAndFetchDrug(request.getDrugId());
@@ -49,12 +52,22 @@ public class PurchaseDetailDomain {
 
         validator.validateForCreation(detail);
 
-        log.info("Domain: Purchase detail validation passed, saving to database");
         return repository.save(detail);
     }
 
+    public List<Purchase_Detail> getByDrug(Long drugId) {
+        return repository.findByDrug_DrugId(drugId);
+    }
+
+    public List<Purchase_Detail> getAll() {
+        return repository.findAll();
+    }
+
+    public List<Purchase_Detail> getByPurchase(Long purchaseId) {
+        return repository.findByPurchase_PurchaseId(purchaseId);
+    }
+
     public Purchase_Detail update(Long purchaseId, Long drugId, PurchaseDetailRequestDTO request) {
-        log.debug("Domain: Updating purchase detail with purchaseId: {} and drugId: {}", purchaseId, drugId);
 
         PurchaseDetailId id = new PurchaseDetailId(purchaseId, drugId);
         Purchase_Detail existing = repository.findById(id)
@@ -65,7 +78,6 @@ public class PurchaseDetailDomain {
 
         validator.validateForUpdate(existing);
 
-        log.info("Domain: Purchase detail update validation passed, saving to database");
         return repository.save(existing);
     }
 
@@ -76,7 +88,6 @@ public class PurchaseDetailDomain {
     }
 
     public void delete(Long purchaseId, Long drugId) {
-        log.debug("Domain: Deleting purchase detail with purchaseId: {} and drugId: {}", purchaseId, drugId);
 
         PurchaseDetailId id = new PurchaseDetailId(purchaseId, drugId);
         if (!repository.existsById(id)) {
@@ -84,7 +95,6 @@ public class PurchaseDetailDomain {
         }
 
         repository.deleteById(id);
-        log.info("Domain: Purchase detail deleted successfully");
     }
 
     private Purchase validateAndFetchPurchase(Long purchaseId) {

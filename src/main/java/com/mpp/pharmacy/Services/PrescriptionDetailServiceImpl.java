@@ -21,7 +21,6 @@ import java.util.List;
 @Transactional
 public class PrescriptionDetailServiceImpl implements PrescriptionDetailService {
 
-    private final PrescriptionDetailRepository repository;
     private final PrescriptionDetailMapper mapper;
     private final PrescriptionDetailDomain prescriptionDetailDomain;
 
@@ -51,7 +50,7 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
     @Override
     @Transactional(readOnly = true)
     public List<PrescriptionDetailDTO> getAll() {
-        return repository.findAll()
+        return prescriptionDetailDomain.getAll()
                 .stream()
                 .map(mapper::toDTO)
                 .toList();
@@ -64,7 +63,7 @@ public class PrescriptionDetailServiceImpl implements PrescriptionDetailService 
             throw new InvalidRequestException("Prescription ID cannot be null");
         }
 
-        return repository.findByPrescription_PrescriptionId(prescriptionId)
+        return prescriptionDetailDomain.getByPrescription(prescriptionId)
                 .stream()
                 .map(mapper::toDTO)
                 .toList();

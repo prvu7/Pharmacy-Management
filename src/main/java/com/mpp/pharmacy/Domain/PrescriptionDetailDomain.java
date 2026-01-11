@@ -15,6 +15,7 @@ import com.mpp.pharmacy.Validators.PrescriptionDetailValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +28,6 @@ public class PrescriptionDetailDomain {
     private final PrescriptionDetailValidator validator;
 
     public Prescription_Detail create(PrescriptionDetailRequestDTO request) {
-        log.debug("Domain: Creating prescription detail");
 
         Prescription prescription = validateAndFetchPrescription(request.getPrescriptionId());
         Drug drug = validateAndFetchDrug(request.getDrugId());
@@ -50,12 +50,10 @@ public class PrescriptionDetailDomain {
 
         validator.validateForCreation(detail);
 
-        log.info("Domain: Prescription detail validation passed, saving to database");
         return repository.save(detail);
     }
 
     public Prescription_Detail update(Long prescriptionId, Long drugId, PrescriptionDetailRequestDTO request) {
-        log.debug("Domain: Updating prescription detail with prescriptionId: {} and drugId: {}", prescriptionId, drugId);
 
         PrescriptionDetailId id = new PrescriptionDetailId(prescriptionId, drugId);
         Prescription_Detail existing = repository.findById(id)
@@ -67,7 +65,6 @@ public class PrescriptionDetailDomain {
 
         validator.validateForUpdate(existing);
 
-        log.info("Domain: Prescription detail update validation passed, saving to database");
         return repository.save(existing);
     }
 
@@ -77,8 +74,11 @@ public class PrescriptionDetailDomain {
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription detail not found"));
     }
 
+    public List<Prescription_Detail> getByPrescription(Long prescriptionId) {
+        return repository.findByPrescription_PrescriptionId(prescriptionId);
+    }
+
     public void delete(Long prescriptionId, Long drugId) {
-        log.debug("Domain: Deleting prescription detail with prescriptionId: {} and drugId: {}", prescriptionId, drugId);
 
         PrescriptionDetailId id = new PrescriptionDetailId(prescriptionId, drugId);
         if (!repository.existsById(id)) {
@@ -86,7 +86,10 @@ public class PrescriptionDetailDomain {
         }
 
         repository.deleteById(id);
-        log.info("Domain: Prescription detail deleted successfully");
+    }
+
+    public List<Prescription_Detail> getAll() {
+        return repository.findAll();
     }
 
     private Prescription validateAndFetchPrescription(Long prescriptionId) {
