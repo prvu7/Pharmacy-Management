@@ -120,7 +120,7 @@ mvn spring-boot:run
 ```
 
 ### 4. Database Initialization
-Execute the `db-init.sql` and `stored-procedures.sql`scripts in your PostgreSQL instance to create the schema and seed initial data.
+Execute the `db-init.sql` and `stored-procedures.sql` scripts in your PostgreSQL instance to create the schema and seed initial data.
 
 ## API Documentation
 Once the application is running, you can access the interactive API documentation and test endpoints directly:
