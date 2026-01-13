@@ -6,6 +6,9 @@ It features secure access via API Keys, integration with the **OpenFDA API** for
 
 ---
 
+## Authors: 
+Popa Marian-Iulian, Pirvu George-Cristian, Man Alexandra
+
 ## Key Features
 
 ### 1. **Core Business Operations**
