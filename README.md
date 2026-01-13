@@ -7,7 +7,8 @@ It features secure access via API Keys, integration with the **OpenFDA API** for
 ---
 
 ## Authors: 
-Popa Marian-Iulian, Pirvu George-Cristian, Man Alexandra
+Popa Marian-Iulian, Pirvu George-Cristian, Man Alexandra  
+Grupa 10LF332
 
 ## Key Features
 
